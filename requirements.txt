@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+whisper
+ffmpeg-python
+python-dotenv
+google-generativeai
+tiktoken

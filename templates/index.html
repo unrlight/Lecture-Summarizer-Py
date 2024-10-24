@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Шаг 1</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <div class="glass-card p-5">
+            <h1 class="mb-4">Шаг 1</h1>
+            <form action="/step2" enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                    <label class="btn btn-custom btn-lg">
+                        Загрузите аудио/видео/последовательность видео
+                        <input type="file" name="files" accept=".mp3,.wav,.mp4" multiple hidden>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-custom btn-lg">Далее</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

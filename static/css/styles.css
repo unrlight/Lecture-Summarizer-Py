@@ -1,0 +1,72 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: url('/static/images/background.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+h1 {
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.btn-custom {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: none;
+}
+
+.btn-custom:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+}
+
+.form-control::placeholder {
+    color: #ccc;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.label {
+    font-size: 1.2em;
+    color: #fff;
+}
+
+.progress-bar {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+textarea {
+    resize: none;
+}
