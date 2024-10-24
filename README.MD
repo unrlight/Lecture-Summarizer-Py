@@ -43,7 +43,7 @@ This project uses Whisper and the Google Gemini API to summarize lectures from a
         ```
         gemini_api_keys=YOUR_ACTUAL_API_KEY
         ```
-    You can get a Gemini API key here: [https://ai.google.dev/gemini-api/docs/api-key](ai.google.dev)
+    You can get a Gemini API key here: [ai.google.dev](https://ai.google.dev/gemini-api/docs/api-key)
 
 4. **Run the application:**
    ```bash
