@@ -16,7 +16,6 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import tiktoken
 from fastapi.staticfiles import StaticFiles
 
-# Загрузка переменных окружения
 load_dotenv()
 
 app = FastAPI()
@@ -24,7 +23,6 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,7 +31,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Глобальные переменные для хранения данных между запросами
 session_data = {}
 
 @app.get("/", response_class=HTMLResponse)
@@ -66,7 +63,6 @@ async def step3(
 
 @app.get("/process", response_class=HTMLResponse)
 async def process(request: Request):
-    # Шаг 1: Распознавание речи с помощью Whisper
     files = session_data.get('files', [])
     language = session_data.get('language', 'ru')
     model_size = session_data.get('model_size', 'small')
@@ -97,24 +93,18 @@ async def process(request: Request):
     result = model.transcribe(audio=final_wav, language=language, verbose=False)
     transcript = result.get('text', '')
 
-    # Сохранение расшифровки
     output_dir = './output'
     os.makedirs(output_dir, exist_ok=True)
     with open(f"{output_dir}/transcript.txt", "w", encoding="utf-8") as f:
         f.write(transcript)
 
-    # Шаг 2: Генерация пересказа с помощью Google Gemini
-    # Настройка клиента Gemini API
     genai.configure(api_key=os.environ.get("gemini_api_keys"))
 
-    # Загрузка примера лекции
     with open("example.txt", "r", encoding="utf-8") as file:
         lectureExample = file.read()
 
-    # Системный промпт
     systemprompt = ""
 
-    # Основной промпт
     prompt = f"""
 Я дам тебе лекцию, распознанную при помощи Whisper.
 Ты обязан сделать подробный пересказ всей лекции.
@@ -139,12 +129,10 @@ async def process(request: Request):
 Текст пересказа:
 """
 
-    # Подсчет токенов
     encoding = tiktoken.encoding_for_model("gpt-4")
     num_tokens = len(encoding.encode(systemprompt)) + len(encoding.encode(prompt))
     print(f"Количество input токенов: {num_tokens}")
 
-    # Настройка модели и генерации текста
     model_gen = genai.GenerativeModel(
         model_name="gemini-1.5-pro-exp-0827"
     )
@@ -183,13 +171,11 @@ async def process(request: Request):
             max_tokens = num_tokens_output
             max_output = response
 
-    # Сохранение пересказа
     output_dir = './output_recognized'
     os.makedirs(output_dir, exist_ok=True)
     with open(f"{output_dir}/summary.md", "w", encoding="utf-8") as f:
         f.write(max_output)
 
-    # Удаление временных файлов
     shutil.rmtree('uploads')
     shutil.rmtree('temp')
 
