@@ -4,6 +4,9 @@
 
 This project uses Whisper and the Google Gemini API to summarize lectures from audio/video files.  It provides a simple web interface for uploading files, selecting processing options, and viewing the generated markdown summaries.
 
+![image](images/image1.png)
+![image](images/image2.png)
+
 ## Features
 
 * **Speech-to-Text Transcription:**  Uses Whisper to convert lecture audio/video into text.
