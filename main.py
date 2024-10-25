@@ -134,7 +134,7 @@ async def process(request: Request):
     print(f"Количество input токенов: {num_tokens}")
 
     model_gen = genai.GenerativeModel(
-        model_name="gemini-1.5-pro-exp-0827"
+        model_name="gemini-1.5-pro-002"
     )
 
     max_attempts = session_data.get('max_attempts', 3)
