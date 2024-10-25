@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -133,6 +134,11 @@ async def process(request: Request):
     num_tokens = len(encoding.encode(systemprompt)) + len(encoding.encode(prompt))
     print(f"Количество input токенов: {num_tokens}")
 
+    if num_tokens > 14000:
+        sleep_flag = True
+    else:
+        sleep_flag = False
+
     model_gen = genai.GenerativeModel(
         model_name="gemini-1.5-pro-002"
     )
@@ -170,6 +176,10 @@ async def process(request: Request):
         if num_tokens_output > max_tokens:
             max_tokens = num_tokens_output
             max_output = response
+
+        if sleep_flag:
+            print("Засыпаем на 60 секунд...")
+            time.sleep(60)
 
     output_dir = './output_recognized'
     os.makedirs(output_dir, exist_ok=True)
