@@ -134,7 +134,7 @@ async def process(request: Request):
     num_tokens = len(encoding.encode(systemprompt)) + len(encoding.encode(prompt))
     print(f"Количество input токенов: {num_tokens}")
 
-    if num_tokens > 14000:
+    if num_tokens > 0: # temp solution
         sleep_flag = True
     else:
         sleep_flag = False
@@ -178,8 +178,8 @@ async def process(request: Request):
             max_output = response
 
         if sleep_flag:
-            print("Засыпаем на 60 секунд...")
-            time.sleep(60)
+            print("Засыпаем на 65 секунд...")
+            time.sleep(65)
 
     output_dir = './output_recognized'
     os.makedirs(output_dir, exist_ok=True)
