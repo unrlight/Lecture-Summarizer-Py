@@ -1,6 +1,5 @@
 import os
 import shutil
-import time
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,12 +9,12 @@ from pathlib import Path
 import uvicorn
 import whisper
 import ffmpeg
-from whisper.utils import get_writer
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import tiktoken
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
 
 load_dotenv()
 
@@ -68,35 +67,47 @@ async def process(request: Request):
     language = session_data.get('language', 'ru')
     model_size = session_data.get('model_size', 'small')
 
-    model = whisper.load_model(model_size)
-    TEMP_DIR = './temp'
-    os.makedirs(TEMP_DIR, exist_ok=True)
-    audio_files = []
-
+    transcript = ""
+    is_text_file = False
     for file in files:
         ext = os.path.splitext(file)[-1].lower()
-        if ext == '.mp4':
-            wav_file = os.path.join(TEMP_DIR, f"{Path(file).stem}.wav")
-            ffmpeg.input(file).output(wav_file, format='wav').run()
-            audio_files.append(wav_file)
-        elif ext in ['.mp3', '.wav']:
-            audio_files.append(file)
+        if ext == '.txt':
+            is_text_file = True
+            with open(file, "r", encoding="utf-8") as f:
+                transcript = f.read()
+            break
+
+    if not is_text_file:
+        model = whisper.load_model(model_size)
+        TEMP_DIR = './temp'
+        os.makedirs(TEMP_DIR, exist_ok=True)
+        audio_files = []
+
+        for file in files:
+            ext = os.path.splitext(file)[-1].lower()
+            if ext == '.mp4':
+                wav_file = os.path.join(TEMP_DIR, f"{Path(file).stem}.wav")
+                ffmpeg.input(file).output(wav_file, format='wav').run()
+                audio_files.append(wav_file)
+            elif ext in ['.mp3', '.wav']:
+                audio_files.append(file)
+            else:
+                return HTMLResponse(f"Неподдерживаемый формат файла: {ext}", status_code=400)
+
+        if len(audio_files) > 1:
+            final_wav = os.path.join(TEMP_DIR, 'combined.wav')
+            inputs = [ffmpeg.input(f) for f in audio_files]
+            ffmpeg.concat(*inputs, v=0, a=1).output(final_wav, acodec='pcm_s16le').run()
         else:
-            return HTMLResponse(f"Неподдерживаемый формат файла: {ext}", status_code=400)
+            final_wav = audio_files[0]
 
-    if len(audio_files) > 1:
-        final_wav = os.path.join(TEMP_DIR, 'combined.wav')
-        inputs = [ffmpeg.input(f) for f in audio_files]
-        ffmpeg.concat(*inputs, v=0, a=1).output(final_wav, acodec='pcm_s16le').run()
-    else:
-        final_wav = audio_files[0]
-
-    result = model.transcribe(audio=final_wav, language=language, verbose=False)
-    transcript = result.get('text', '')
+        result = model.transcribe(audio=final_wav, language=language, verbose=False)
+        transcript = result.get('text', '')
 
     output_dir = './output'
     os.makedirs(output_dir, exist_ok=True)
-    with open(f"{output_dir}/transcript.txt", "w", encoding="utf-8") as f:
+    current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+    with open(f"{output_dir}/transcript_{current_time}.txt", "w", encoding="utf-8") as f:
         f.write(transcript)
 
     genai.configure(api_key=os.environ.get("gemini_api_keys"))
@@ -104,90 +115,123 @@ async def process(request: Request):
     with open("example.txt", "r", encoding="utf-8") as file:
         lectureExample = file.read()
 
-    systemprompt = ""
+    base_prompt = f"""
+        Я дам тебе лекцию, распознанную при помощи Whisper.
+        Ты обязан сделать подробный пересказ всей лекции.
+        Ты обязан сделать максимально подробный пересказ всей лекции. Каждый раздел должен быть глубоко разобран и расширен до максимального уровня детализации, чтобы итоговый пересказ был длинным и полным.
+        Вся лекция должна быть в твоём контекстом окне.
+        Для пересказа ты определяешь все темы и подтемы и каждую из них очень подробно разбираешь.
+        Не должно быть так, чтобы в подтеме было только одно предложение.
+        Очень важно, чтобы одна тема подводила к другой. То есть важно, чтобы тема не была простым перечислением терминов, а имела осмысленное подведение к основным данным темы.
+        Я предпочитаю более длинные и более подробные ответы.
 
-    prompt = f"""
-Я дам тебе лекцию, распознанную при помощи Whisper.
-Ты обязан сделать подробный пересказ всей лекции.
-Ты обязан сделать максимально подробный пересказ всей лекции. Каждый раздел должен быть глубоко разобран и расширен до максимального уровня детализации, чтобы итоговый пересказ был длинным и полным.
-Вся лекция должна быть в твоём контекстом окне.
-Для пересказа ты определяешь все темы и подтемы и каждую из них очень подробно разбираешь.
-Не должно быть так, чтобы в подтеме было только одно предложение.
-Очень важно, чтобы одна тема подводила к другой. То есть важно, чтобы тема не была простым перечислением терминов, а имела осмысленное подведение к основным данным темы.
-Я предпочитаю более длинные и более подробные ответы.
-
-Вот хороший пример пересказанной лекции:
-{lectureExample}\n
-"""
+        Вот хороший пример пересказанной лекции:
+        {lectureExample}\n
+        """
 
     if language == 'en':
-        prompt += "Ты должен ответить на русском языке.\n"
+        base_prompt += "Ты должен ответить на русском языке.\n"
 
-    prompt += f"""
-Текст лекции, которую нужно пересказать:
-{transcript}\n
+    additional_prompt = """
+        Текст лекции, которую нужно пересказать:
+        {part}\n
 
-Текст пересказа:
-"""
+        Текст пересказа:
+        """
 
     encoding = tiktoken.encoding_for_model("gpt-4")
-    num_tokens = len(encoding.encode(systemprompt)) + len(encoding.encode(prompt))
-    print(f"Количество input токенов: {num_tokens}")
 
-    if num_tokens > 0: # temp solution
-        sleep_flag = True
+    tokens_in_base_prompt = len(encoding.encode(base_prompt))
+    tokens_in_additional_prompt = len(encoding.encode(additional_prompt.format(part="")))
+
+    max_total_tokens = 14000
+    max_transcript_tokens_per_part = max_total_tokens - tokens_in_base_prompt - tokens_in_additional_prompt
+
+    tokens_in_transcript = len(encoding.encode(transcript))
+
+    print(f"Токенов в базовом промпте: {tokens_in_base_prompt}")
+    print(f"Токенов в дополнительном промпте: {tokens_in_additional_prompt}")
+    print(f"Максимум токенов на часть транскрипта: {max_transcript_tokens_per_part}")
+    print(f"Всего токенов в транскрипте: {tokens_in_transcript}")
+
+    outputs = []
+    if tokens_in_base_prompt + tokens_in_additional_prompt + tokens_in_transcript <= max_total_tokens:
+        print("Общее количество токенов меньше или равно 14,000, используем gemini-1.5-pro-002")
+        max_attempts = 1
+        model_name = "gemini-1.5-pro-002"
+        parts = [transcript]
     else:
-        sleep_flag = False
+        print("Общее количество токенов превышает 14,000, делим транскрипт и используем gemini-1.5-flash")
+        max_attempts = session_data.get('max_attempts', 3)
+        model_name = "gemini-1.5-flash"
 
-    model_gen = genai.GenerativeModel(
-        model_name="gemini-1.5-pro-002"
-    )
+        transcript_tokens = encoding.encode(transcript)
+        parts = []
+        start_idx = 0
+        while start_idx < len(transcript_tokens):
+            end_idx = start_idx + max_transcript_tokens_per_part
+            if end_idx > len(transcript_tokens):
+                end_idx = len(transcript_tokens)
+            part_tokens = transcript_tokens[start_idx:end_idx]
+            part_text = encoding.decode(part_tokens)
+            parts.append(part_text)
+            start_idx = end_idx
 
-    max_attempts = session_data.get('max_attempts', 3)
-    output = []
-    max_tokens = 0
-    max_output = ""
+        print(f"Транскрипт разделён на {len(parts)} частей.")
 
-    for attempt in range(max_attempts):
-        print(f"Попытка генерации: {attempt + 1}")
-        chat = model_gen.start_chat(
-            history=[
-                {"role": "user", "parts": "Здравствуй!"},
-                {"role": "model", "parts": "Здравствуй, чем могу помочь?"},
-            ],
-        )
-        response = chat.send_message(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                max_output_tokens=8192,
-                temperature=1.5
-            ),
-            safety_settings={
-                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE
-            }
-        ).text
-        output.append(response)
+    for idx, part in enumerate(parts, start=1):
+        prompt = base_prompt + additional_prompt.format(part=part)
+        num_tokens = len(encoding.encode(prompt))
+        print(f"Общее количество токенов для части {idx}: {num_tokens}")
 
-        num_tokens_output = len(encoding.encode(response))
-        print(f"Количество output токенов: {num_tokens_output}")
-        if num_tokens_output > max_tokens:
-            max_tokens = num_tokens_output
-            max_output = response
+        max_output_tokens = 8192
 
-        if sleep_flag:
-            print("Засыпаем на 65 секунд...")
-            time.sleep(65)
+        max_tokens = 0
+        best_output = ""
+        for attempt in range(max_attempts):
+            print(f"Генерация для части {idx}, попытка {attempt + 1}")
+            model_gen = genai.GenerativeModel(
+                model_name=model_name
+            )
+            chat = model_gen.start_chat(
+                history=[
+                    {"role": "user", "parts": "Здравствуй!"},
+                    {"role": "model", "parts": "Здравствуй, чем могу помочь?"},
+                ],
+            )
+            response = chat.send_message(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=max_output_tokens,
+                    temperature=1.5
+                ),
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE
+                }
+            ).text
+
+            num_tokens_output = len(encoding.encode(response))
+            print(f"Токенов в ответе для части {idx}: {num_tokens_output}")
+            if num_tokens_output > max_tokens:
+                max_tokens = num_tokens_output
+                best_output = response
+
+        outputs.append(f"# {idx} часть текста:\n\n{best_output}\n\n")
+
+    max_output = "".join(outputs)
 
     output_dir = './output_recognized'
     os.makedirs(output_dir, exist_ok=True)
-    with open(f"{output_dir}/summary.md", "w", encoding="utf-8") as f:
+    with open(f"{output_dir}/summary_{current_time}.md", "w", encoding="utf-8") as f:
         f.write(max_output)
 
-    shutil.rmtree('uploads')
-    shutil.rmtree('temp')
+    if os.path.exists('uploads'):
+        shutil.rmtree('uploads')
+    if os.path.exists('temp'):
+        shutil.rmtree('temp')
 
     return templates.TemplateResponse("step4.html", {"request": request, "summary": max_output})
 
