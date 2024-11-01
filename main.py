@@ -60,7 +60,6 @@ def process(request: Request):
 
     transcript = transcribe_audio_files(files, language, model_size)
     
-    # Select summarization based on model
     if model_type == "gemini":
         summary = summarize_transcript(transcript, language, max_attempts)
     else:
