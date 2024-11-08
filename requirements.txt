@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-whisper
+openai-whisper
 ffmpeg-python
 python-dotenv
 google-generativeai
