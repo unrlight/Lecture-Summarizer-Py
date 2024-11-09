@@ -2,7 +2,7 @@
 
 ## Description
 
-This project uses Whisper and the Google Gemini API to summarize lectures from audio/video files.  It provides a simple web interface for uploading files, selecting processing options, and viewing the generated markdown summaries.
+This project uses Whisper and LLM to summarize lectures from audio/video files. It provides a simple web interface for uploading files, selecting processing options, and viewing the generated markdown summaries.
 
 ![image](images/image1.png)
 ![image](images/image2.png)
@@ -10,7 +10,7 @@ This project uses Whisper and the Google Gemini API to summarize lectures from a
 ## Features
 
 * **Speech-to-Text Transcription:**  Uses Whisper to convert lecture audio/video into text.
-* **Intelligent Summarization:** Leverages the Gemini API to generate detailed and comprehensive summaries.
+* **Intelligent Summarization:** Leverages the Gemini API(OpenAI API; Ollama API) to generate detailed and comprehensive summaries.
 * **Markdown Output:**  Provides summaries in convenient markdown format.
 * **Web Interface:** Easy-to-use interface for uploading files and configuring the summarization process.
 * **Multiple File Upload:** Supports uploading and processing multiple audio/video files simultaneously to combine them into one lecture.
@@ -48,7 +48,7 @@ This project uses Whisper and the Google Gemini API to summarize lectures from a
         ```
     You can get a Gemini API key here: [ai.google.dev](https://ai.google.dev/gemini-api/docs/api-key)
 
-3. **Set your OpenAI API key: (optional)**
+3. **Set your OpenAI API key: (Optional)**
 
     * **Option 1 (Environment Variable):**
       ```bash
@@ -63,12 +63,20 @@ This project uses Whisper and the Google Gemini API to summarize lectures from a
         ```
     You can get a OpenAI API key here: [platform.openai.com](https://platform.openai.com/api-keys)
 
-4. **Run the application:**
+5. **Install and Configure Qwen 2.5 Model (Optional):**
+
+    To use the Qwen 2.5 model, you need to install [Ollama](https://ollama.com/download). After downloading and installing Ollama, you can install the Qwen 2.5 model by running the following command:
+
+    ```bash
+    ollama run qwen2.5
+    ```
+
+6. **Run the application:**
    ```bash
    uvicorn main:app --reload --host 0.0.0.0 --port 8001
    ```
 
-5. **Access the web interface:** Open your web browser and go to `http://localhost:8001`.
+7. **Access the web interface:** Open your web browser and go to `http://localhost:8001`.
 
 ## Whisper Model Sizes
 

@@ -6,21 +6,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
-    <script>
-        function updateProgress(value, max) {
-            var elem = document.getElementById("progressBar");
-            elem.style.width = (value / max * 100) + '%';
-        }
-    </script>
 </head>
 <body onload="window.location.href='/process'">
     <div class="container text-center mt-5">
         <div class="glass-card p-5">
             <h1 class="mb-4">Шаг 3</h1>
             <p class="lead">Идёт обработка, пожалуйста, подождите...</p>
-            <div class="progress" style="height: 30px;">
-                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
-            </div>
         </div>
     </div>
 </body>
