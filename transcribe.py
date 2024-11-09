@@ -48,7 +48,7 @@ def transcribe_audio_files(files, language, model_size):
         result = model.transcribe(audio=final_audio, language=language, verbose=False)
         transcript = result.get('text', '')
 
-    output_dir = './output'
+    output_dir = './output_transcribed'
     os.makedirs(output_dir, exist_ok=True)
     current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
     with open(f"{output_dir}/transcript_{current_time}.txt", "w", encoding="utf-8") as f:

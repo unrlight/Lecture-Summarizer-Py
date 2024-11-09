@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 session_data = {}
-output_dir = './output_recognized'
+output_dir = './output_summarized'
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
