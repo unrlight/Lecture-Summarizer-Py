@@ -73,10 +73,10 @@ This project uses Whisper and LLM to summarize lectures from audio/video files. 
 
 6. **Run the application:**
    ```bash
-   uvicorn main:app --reload --host 0.0.0.0 --port 8001
+   uvicorn main:app --reload --host 0.0.0.0 --port 8005
    ```
 
-7. **Access the web interface:** Open your web browser and go to `http://localhost:8001`.
+7. **Access the web interface:** Open your web browser and go to `http://localhost:8005`.
 
 ## Whisper Model Sizes
 
