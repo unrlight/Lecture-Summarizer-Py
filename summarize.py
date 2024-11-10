@@ -88,7 +88,7 @@ def summarize_transcript(transcript, language, user_max_attempts):
         parts = [transcript]
         print("Используется модель gemini-1.5-pro-002 с 1 попыткой генерации.")
     else:
-        model_name = "gemini-1.5-flash"
+        model_name = "gemini-1.5-flash-002"
         max_attempts = user_max_attempts
         max_transcript_tokens_per_part = max_total_tokens_gemini - prompt_tokens
         parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
