@@ -14,6 +14,7 @@ max_output_tokens = 8192
 temperature = 1.5
 max_total_tokens_gemini = 14000
 max_total_tokens_openai = 16000
+max_total_tokens_ollama = 16000
 gemini_api_key = os.environ.get("gemini_api_keys")
 openai_api_key = os.environ.get("open_ai_api_keys")
 
@@ -300,12 +301,11 @@ def summarize_with_ollama_api(transcript, language, max_attempts):
     total_tokens = tokens_in_transcript + prompt_tokens
     print(f"Общее количество токенов: {total_tokens}")
 
-    max_predict_tokens = 20000
 
-    if total_tokens <= max_predict_tokens:
+    if total_tokens <= max_total_tokens_ollama:
         parts = [transcript]
     else:
-        max_transcript_tokens_per_part = max_predict_tokens - prompt_tokens
+        max_transcript_tokens_per_part = max_total_tokens_ollama - prompt_tokens
         parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
 
     all_summaries = []
@@ -325,7 +325,7 @@ def summarize_with_ollama_api(transcript, language, max_attempts):
                 messages=[{"role": "user", "content": prompt}],
                 options={
                     "num_predict": 4000,
-                    "num_ctx": 20000,
+                    "num_ctx": 24000,
                     "keep_alive": 0
                 }
             )

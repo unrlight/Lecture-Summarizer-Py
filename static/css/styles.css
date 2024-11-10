@@ -70,3 +70,8 @@ h1 {
 textarea {
     resize: none;
 }
+
+select.form-control option {
+    color: #000;
+    background-color: #fff;
+}
