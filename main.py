@@ -40,11 +40,13 @@ def step2(request: Request, files: list[UploadFile] = File(...)):
 def step3(
     request: Request,
     language: str = Form(...),
+    display_language: str = Form(...),
     model_size: str = Form(...),
     max_attempts: int = Form(...),
     model_type: str = Form(...)
 ):
     session_data['language'] = language
+    session_data['display_language'] = display_language
     session_data['model_size'] = model_size
     session_data['max_attempts'] = int(max_attempts)
     session_data['model_type'] = model_type
@@ -54,6 +56,7 @@ def step3(
 def process(request: Request):
     files = session_data.get('files', [])
     language = session_data.get('language', 'ru')
+    display_language = session_data.get('display_language', 'ru')
     model_size = session_data.get('model_size', 'small')
     max_attempts = session_data.get('max_attempts', 3)
     model_type = session_data.get('model_type', 'gemini')
@@ -61,11 +64,11 @@ def process(request: Request):
     transcript = transcribe_audio_files(files, language, model_size)
     
     if model_type == "gemini":
-        summary = summarize_transcript(transcript, language, max_attempts)
+        summary = summarize_transcript(transcript, language, display_language, max_attempts)
     elif model_type == "qwen2.5":
-        summary = summarize_with_ollama_api(transcript, language, max_attempts)
+        summary = summarize_with_ollama_api(transcript, language, display_language, max_attempts)
     else:
-        summary = summarize_with_openai_api(transcript, model_type, language, max_attempts)
+        summary = summarize_with_openai_api(transcript, model_type, language, display_language, max_attempts)
 
     current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
     os.makedirs(output_dir, exist_ok=True)
