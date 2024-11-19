@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Шаг 4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/marked.min.js"></script>
@@ -34,7 +35,7 @@
                 const style = document.createElement('style');
                 style.textContent = `
                     body {
-                        font-family: 'Montserrat';
+                        font-family: 'Montserrat', sans-serif;
                         margin-left: 10%;
                         margin-right: 10%;
                         margin-top: 5%;
@@ -42,7 +43,9 @@
                         padding: 0;
                         box-sizing: border-box;
                         background-color: #f9f9f9;
+                        line-height: 1.6;
                         color: #333;
+                        overflow: hidden;
                     }
 
                     #form {
@@ -76,30 +79,31 @@
                         font-weight: bold;
                     }
 
-                    #schedule h1, h2, h3 {
+                    h1, h2, h3 {
                         margin-bottom: 20px;
                         padding-left: 15px;
                         border-left: 5px solid;
+                        margin-top: 15px;
                     }
 
-                    #schedule h1 {
+                    h1 {
                         border-color: #ff006e;
                         font-size: 2em;
-                        margin-top: 30px;
+                        margin-top: 20px;
                     }
 
-                    #schedule h2 {
+                    h2 {
                         border-color: #fb5607;
                         font-size: 1.75em;
                     }
 
-                    #schedule h3 {
+                    h3 {
                         border-color: #ffbe0b;
                         font-size: 1.5em;
                     }
 
 
-                    #schedule table {
+                    table {
                         width: 100%;
                         border-collapse: collapse;
                         margin-bottom: 30px;
@@ -107,42 +111,51 @@
                         border: 1px solid #ddd;
                     }
 
-                    #schedule table th, table td {
+                    table th, table td {
                         padding: 10px;
                         text-align: left;
                         border: 1px solid #ddd;
                     }
 
-                    #schedule table th {
+                    table th {
                         background-color: #f0f0f0;
                         font-weight: bold;
                     }
 
-                    #schedule table tr:nth-child(even) {
+                    table tr:nth-child(even) {
                         background-color: #f9f9f9;
                     }
 
-                    #schedule ul, ol {
+                    ul, ol {
                         margin-bottom: 20px;
                         padding-left: 40px;
                     }
 
-                    #schedule li {
+                    li {
                         margin-bottom: 10px;
                     }
 
-                    #schedule p {
+                    p {
                         line-height: 1.6;
-                        margin-bottom: 20px;
+                        margin-bottom: 1.2em;
                     }
 
-                    #schedule a {
+                    a {
                         color: #ff006e;
                         text-decoration: none;
                     }
 
-                    #schedule a:hover {
+                    a:hover {
                         text-decoration: underline;
+                    }
+
+                    * {
+                        box-sizing: border-box;
+                    }
+                    
+                    .container {
+                        max-width: 100%;
+                        overflow: visible; /* Allow expansion */
                     }
 
                 `;
@@ -151,11 +164,11 @@
                 html2pdf()
                     .from(renderedContent)
                     .set({
-                        margin: [20, 20, 20, 20],
+                        margin: [10, 20, 10, 20],
                         filename: 'result.pdf',
                         image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2 },
-                        jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+                        html2canvas: { scale: 2, scrollY: 0 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                     })
                     .save()
                     .finally(() => {
