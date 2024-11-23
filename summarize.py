@@ -132,7 +132,7 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
     else:
         base_prompt_template += "\nAnswer in English"
 
-    encoding = encoding_for_model("gpt-4")
+    encoding = encoding_for_model("gpt-3.5")
     tokens_in_transcript = len(encoding.encode(transcript))
 
     prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
@@ -477,7 +477,7 @@ def summarize_with_ollama_api(transcript, language, display_language, max_attemp
     else:
         base_prompt_template += "\nAnswer in English"
 
-    encoding = encoding_for_model("gpt-4")
+    encoding = encoding_for_model("gpt-3.5")
     prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
     tokens_in_transcript = len(encoding.encode(transcript))
     total_tokens = tokens_in_transcript + prompt_tokens
