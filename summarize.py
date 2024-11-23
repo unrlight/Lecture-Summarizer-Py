@@ -5,8 +5,9 @@ from google.generativeai import configure, GenerativeModel
 import openai
 import ollama
 from dotenv import load_dotenv
-from utils import split_transcript_into_parts
+from utils import split_transcript_into_parts, markdown_math_fix
 from prompts import *
+from translate import *
 
 
 load_dotenv()
@@ -192,18 +193,23 @@ def summarize_with_openai_api(transcript, model_type, language, display_language
     full_summary = "".join(all_summaries)
     return full_summary
 
-def summarize_with_ollama_api(transcript, language, display_language, max_attempts):
+def summarize_with_ollama_api(input_transcript, language, display_language, max_attempts):
+
+    main_transcript = input_transcript
 
     if language == 'ru':
-        base_prompt_template = ollama_ru_prompt + """
+
+        main_transcript = translate_ollama(main_transcript, "russian", "english")
+
+        base_prompt_template = ollama_en_prompt + """
 
             {part_text}
 
             ---
 
-            **Примечание:** Пожалуйста, внимательно следуй всем указанным требованиям, чтобы пересказ получился максимально информативным и соответствующим заданию.
-            
+                **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
             """
+
     else:
         base_prompt_template = ollama_en_prompt + """
 
@@ -213,24 +219,19 @@ def summarize_with_ollama_api(transcript, language, display_language, max_attemp
 
                 **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
             """
-        
-    if display_language == 'ru':
-        base_prompt_template += "\nОтвечай на русском языке"
-    else:
-        base_prompt_template += "\nAnswer in English"
 
     encoding = encoding_for_model("gpt-3.5")
     prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
-    tokens_in_transcript = len(encoding.encode(transcript))
+    tokens_in_transcript = len(encoding.encode(main_transcript))
     total_tokens = tokens_in_transcript + prompt_tokens
     print(f"Общее количество токенов: {total_tokens}")
 
 
     if total_tokens <= max_total_tokens_ollama:
-        parts = [transcript]
+        parts = [main_transcript]
     else:
         max_transcript_tokens_per_part = max_total_tokens_ollama - prompt_tokens
-        parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
+        parts = split_transcript_into_parts(main_transcript, max_transcript_tokens_per_part)
 
     all_summaries = []
     for part_number, part in enumerate(parts, start=1):
@@ -245,7 +246,8 @@ def summarize_with_ollama_api(transcript, language, display_language, max_attemp
             print(f"Попытка {attempt + 1} для части {part_number} с моделью Qwen2.5")
             
             response = ollama.chat(
-                model="qwen2.5:latest",
+                #model="qwen2.5:latest",
+                model="qwen2.5:3b",
                 messages=[{"role": "user", "content": prompt}],
                 options={
                     "num_predict": 4000,
@@ -265,6 +267,11 @@ def summarize_with_ollama_api(transcript, language, display_language, max_attemp
         all_summaries.append(f"# Часть {part_number}:\n\n{best_summary}\n\n")
 
     full_summary = "".join(all_summaries)
+
+    if(display_language=="ru"):
+        full_summary = translate_ollama(full_summary,"english","russian")
+
+    full_summary = markdown_math_fix(full_summary)
 
     return full_summary
 
