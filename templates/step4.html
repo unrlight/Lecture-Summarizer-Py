@@ -10,15 +10,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="glass-card p-5">
-            <h1 class="text-center mb-4">Шаг 4</h1>
-            <div class="form-group">
-                <label for="summary">Пересказ лекции:</label>
-                <textarea id="summary" class="form-control" rows="20">{{ summary }}</textarea>
+    <div class="interface-wrapper">
+        <div class="container mt-5">
+            <div class="glass-card p-5">
+                <h1 class="text-center mb-4">Шаг 4</h1>
+                <div class="form-group">
+                    <label for="summary">Пересказ лекции:</label>
+                    <textarea id="summary" class="form-control" rows="20">{{ summary }}</textarea>
+                </div>
+                <button class="btn btn-custom btn-lg btn-block" onclick="downloadPDF()">Скачать результат</button>
+                <a href="/reset" class="btn btn-custom btn-lg btn-block">На главную</a>
             </div>
-            <button class="btn btn-custom btn-lg btn-block" onclick="downloadPDF()">Скачать результат</button>
-            <a href="/reset" class="btn btn-custom btn-lg btn-block">На главную</a>
         </div>
     </div>
 

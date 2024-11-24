@@ -8,18 +8,33 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container text-center mt-5">
-        <div class="glass-card p-5">
-            <h1 class="mb-4">Шаг 1</h1>
-            <form action="/step2" enctype="multipart/form-data" method="post">
-                <div class="form-group">
-                    <label class="btn btn-custom btn-lg">
-                        Загрузите аудио/видео/последовательность видео или текстовый файл
-                        <input type="file" name="files" accept=".mp3,.wav,.mp4,.txt" multiple hidden>
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-custom btn-lg">Далее</button>
-            </form>
+    <div class="interface-wrapper">
+        <div class="container text-center mt-5">
+            <div class="glass-card p-5">
+                <h1 class="mb-4">Шаг 1</h1>
+                <form id="upload-form" action="/step2" enctype="multipart/form-data" method="post">
+                    <div class="form-group">
+                        <label class="btn btn-custom btn-lg">
+                            Выберите ваши файлы
+                            <input 
+                                type="file" 
+                                name="files" 
+                                accept=".mp3,.wav,.mp4,.txt" 
+                                multiple 
+                                hidden 
+                                onchange="this.form.submit()"
+                            >
+                        </label>
+                    </div>
+
+                    <div class="format-badges">
+                        <span class="badge-format">MP4</span>
+                        <span class="badge-format">MP3</span>
+                        <span class="badge-format">WAV</span>
+                        <span class="badge-format">TXT</span>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </body>
