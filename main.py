@@ -6,6 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 
 from utils import save_uploaded_files, clean_up_directories
 from transcribe import transcribe_audio_files
@@ -78,6 +79,13 @@ def process(request: Request):
     clean_up_directories(['uploads', 'temp'])
 
     return templates.TemplateResponse("step4.html", {"request": request, "summary": summary})
+
+@app.get("/reset", response_class=HTMLResponse)
+def reset(request: Request):
+    global session_data
+    session_data = {}
+    clean_up_directories(['uploads', 'temp'])
+    return RedirectResponse(url="/")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8005)
