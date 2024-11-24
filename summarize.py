@@ -113,20 +113,17 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
     full_summary = "".join(all_summaries)
     return full_summary
 
-def summarize_with_openai_api(transcript, model_type, language, display_language, user_max_attempts):
+def summarize_with_openai_api(input_transcript, model_type, language, display_language, user_max_attempts):
+    
     openai.api_key = openai_api_key
+
+    main_transcript = input_transcript
+
     if language == 'ru':
-        base_prompt_template = openai_ru_prompt + """
 
-            {part_text}
+        main_transcript = translate_openai(main_transcript, "russian", "english")
 
-            ---
-
-            **Примечание:** Пожалуйста, внимательно следуй всем указанным требованиям, чтобы пересказ получился максимально информативным и соответствующим заданию.
-            
-            """
-    else:
-        base_prompt_template = openai_en_prompt + """
+        base_prompt_template = ollama_en_prompt + """
 
             {part_text}
 
@@ -134,25 +131,29 @@ def summarize_with_openai_api(transcript, model_type, language, display_language
 
                 **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
             """
-        
-    if display_language == 'ru':
-        base_prompt_template += "\nОтвечай на русском языке"
-    else:
-        base_prompt_template += "\nAnswer in English"
 
+    else:
+        base_prompt_template = ollama_en_prompt + """
+
+            {part_text}
+
+            ---
+
+                **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
+            """
 
     encoding = encoding_for_model("gpt-4")
-    tokens_in_transcript = len(encoding.encode(transcript))
+    tokens_in_transcript = len(encoding.encode(main_transcript))
     prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
     total_tokens = tokens_in_transcript + prompt_tokens
     print(f"Общее количество токенов: {total_tokens}")
 
     if total_tokens <= max_total_tokens_openai:
-        parts = [transcript]
+        parts = [main_transcript]
         print("Транскрипт достаточно короткий, не требуется разделение.")
     else:
         max_transcript_tokens_per_part = max_total_tokens_openai - prompt_tokens
-        parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
+        parts = split_transcript_into_parts(main_transcript, max_transcript_tokens_per_part)
         print(f"Транскрипт разделён на {len(parts)} частей.")
 
     all_summaries = []
@@ -191,6 +192,12 @@ def summarize_with_openai_api(transcript, model_type, language, display_language
         all_summaries.append(f"# Часть {part_number}:\n\n{best_summary}\n\n")
 
     full_summary = "".join(all_summaries)
+
+    if(display_language=="ru"):
+        full_summary = translate_openai(full_summary,"english","russian")
+
+    full_summary = markdown_math_fix(full_summary)
+
     return full_summary
 
 def summarize_with_ollama_api(input_transcript, language, display_language, max_attempts):
