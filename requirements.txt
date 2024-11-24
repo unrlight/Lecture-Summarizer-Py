@@ -8,3 +8,4 @@ tiktoken
 ollama
 openai
 python-multipart
+PyPDF2

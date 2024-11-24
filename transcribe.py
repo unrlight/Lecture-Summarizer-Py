@@ -3,6 +3,7 @@ import ffmpeg
 import whisper
 from datetime import datetime
 from pathlib import Path
+from PyPDF2 import PdfReader
 
 def transcribe_audio_files(files, language, model_size):
     transcript = ""
@@ -10,11 +11,14 @@ def transcribe_audio_files(files, language, model_size):
     os.makedirs(temp_dir, exist_ok=True)
     text_files = []
     audio_files = []
+    pdf_files = []
 
     for file in files:
         extension = os.path.splitext(file)[-1].lower()
         if extension in ['.txt', '.srt']:
             text_files.append(file)
+        elif extension == '.pdf':
+            pdf_files.append(file)
         elif extension in ['.mp3', '.wav', '.mp4']:
             audio_files.append(file)
         else:
@@ -26,6 +30,17 @@ def transcribe_audio_files(files, language, model_size):
             with open(text_file, "r", encoding="utf-8") as f:
                 combined_text += f.read() + "\n"
         transcript = combined_text
+
+    if pdf_files:
+        combined_pdf_text = ""
+        for pdf_file in pdf_files:
+            try:
+                reader = PdfReader(pdf_file)
+                for page in reader.pages:
+                    combined_pdf_text += page.extract_text() + "\n"
+            except Exception as e:
+                print(f"Error reading PDF file {pdf_file}: {e}")
+        transcript += combined_pdf_text
 
     if audio_files:
         model = whisper.load_model(model_size)
