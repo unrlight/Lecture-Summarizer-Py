@@ -55,30 +55,34 @@ def step3(
 
 @app.get("/process", response_class=HTMLResponse)
 def process(request: Request):
-    files = session_data.get('files', [])
-    language = session_data.get('language', 'ru')
-    display_language = session_data.get('display_language', 'ru')
-    model_size = session_data.get('model_size', 'small')
-    max_attempts = session_data.get('max_attempts', 3)
-    model_type = session_data.get('model_type', 'gemini')
+    try:
+        files = session_data.get('files', [])
+        language = session_data.get('language', 'ru')
+        display_language = session_data.get('display_language', 'ru')
+        model_size = session_data.get('model_size', 'small')
+        max_attempts = session_data.get('max_attempts', 1)
+        model_type = session_data.get('model_type', 'gemini')
 
-    transcript = transcribe_audio_files(files, language, model_size)
-    
-    if model_type == "gemini":
-        summary = summarize_transcript(transcript, language, display_language, max_attempts)
-    elif model_type == "qwen2.5":
-        summary = summarize_with_ollama_api(transcript, language, display_language, max_attempts)
-    else:
-        summary = summarize_with_openai_api(transcript, model_type, language, display_language, max_attempts)
+        transcript = transcribe_audio_files(files, language, model_size)
+        
+        if model_type == "gemini":
+            summary = summarize_transcript(transcript, language, display_language, max_attempts)
+        elif model_type == "qwen2.5":
+            summary = summarize_with_ollama_api(transcript, language, display_language, max_attempts)
+        else:
+            summary = summarize_with_openai_api(transcript, model_type, language, display_language, max_attempts)
 
-    current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-    os.makedirs(output_dir, exist_ok=True)
-    with open(f"{output_dir}/summary_{current_time}.md", "w", encoding="utf-8") as f:
-        f.write(summary)
+        current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+        os.makedirs(output_dir, exist_ok=True)
+        with open(f"{output_dir}/summary_{current_time}.md", "w", encoding="utf-8") as f:
+            f.write(summary)
 
-    clean_up_directories(['uploads', 'temp'])
+        clean_up_directories(['uploads', 'temp'])
 
-    return templates.TemplateResponse("step4.html", {"request": request, "summary": summary})
+        return templates.TemplateResponse("step4.html", {"request": request, "summary": summary})
+    except Exception as e:
+        print(f"Error in process: {e}")
+        return RedirectResponse(url="/")
 
 @app.get("/reset", response_class=HTMLResponse)
 def reset(request: Request):
