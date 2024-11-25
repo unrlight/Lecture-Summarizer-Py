@@ -31,7 +31,7 @@ def translate_ollama(text, input_language, output_language):
                 print(f"Попытка перевода {attempt + 1} (с {input_language} на {output_language}) для части {part_number} с моделью Qwen2.5")
                 
                 response = ollama.chat(
-                    model="qwen2.5:latest",
+                    model="qwen2.5:3b",
                     messages=[{"role": "user", "content": prompt}],
                     options={
                         "num_predict": 10000,
