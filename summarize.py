@@ -10,13 +10,13 @@ from prompts import *
 from translate import *
 import time
 
-
 load_dotenv()
 
-max_output_tokens = 8192
 temperature = 1.5
 max_total_tokens_gemini = 14000
+max_output_tokens_gemini = 8192
 max_total_tokens_openai = 16000
+max_output_tokens_openai = 8192
 max_total_tokens_ollama = 10000
 gemini_api_key = os.environ.get("gemini_api_keys")
 openai_api_key = os.environ.get("open_ai_api_keys")
@@ -97,7 +97,7 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
             response = chat.send_message(
                 prompt,
                 generation_config={
-                    "max_output_tokens": max_output_tokens,
+                    "max_output_tokens": max_output_tokens_gemini,
                     "temperature": temperature
                 },
                 safety_settings={}
@@ -183,7 +183,7 @@ def summarize_with_openai_api(input_transcript, model_type, language, display_la
                     }
                 ],
                 model=model_type,
-                max_tokens=max_output_tokens,
+                max_tokens=max_output_tokens_openai,
                 temperature=temperature / 2,
             )
 
