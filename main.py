@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 
 from utils import save_uploaded_files, clean_up_directories
 from transcribe import transcribe_audio_files
-from summarize import summarize_transcript, summarize_with_openai_api, summarize_with_ollama_api
+from summarize import summarize_transcript, summarize_with_openai_api, summarize_with_ollama_api, summarize_with_hf_inference_client
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -69,6 +69,8 @@ def process(request: Request):
             summary = summarize_transcript(transcript, language, display_language, max_attempts)
         elif model_type == "qwen2.5":
             summary = summarize_with_ollama_api(transcript, language, display_language, max_attempts)
+        elif model_type == "hf":
+            summary = summarize_with_hf_inference_client(transcript, language, display_language)
         else:
             summary = summarize_with_openai_api(transcript, model_type, language, display_language, max_attempts)
 

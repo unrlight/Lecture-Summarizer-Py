@@ -9,17 +9,29 @@ from utils import split_transcript_into_parts, markdown_math_fix
 from prompts import *
 from translate import *
 import time
+from huggingface_hub import InferenceClient
 
 load_dotenv()
 
 temperature = 1.5
+
 max_total_tokens_gemini = 14000
 max_output_tokens_gemini = 8192
+
 max_total_tokens_openai = 16000
 max_output_tokens_openai = 8192
+
 max_total_tokens_ollama = 10000
+model_ollama = "qwen2.5:latest"
+
+max_total_tokens_hf = 16000
+max_output_tokens_hf = 8000
+model_hf = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+timeout_hf = 360
+
 gemini_api_key = os.environ.get("gemini_api_keys")
 openai_api_key = os.environ.get("open_ai_api_keys")
+hf_api_key = os.environ.get("hf_api_keys")
 
 def summarize_transcript(transcript, language, display_language, user_max_attempts):
     configure(api_key=gemini_api_key)
@@ -264,7 +276,7 @@ def summarize_with_ollama_api(input_transcript, language, display_language, max_
             start = time.time()
 
             response = ollama.chat(
-                model="qwen2.5:latest",
+                model=model_ollama,
                 messages=[{"role": "user", "content": prompt}],
                 options={
                     "num_predict": 10000,
@@ -296,3 +308,70 @@ def summarize_with_ollama_api(input_transcript, language, display_language, max_
 
     return full_summary
 
+def summarize_with_hf_inference_client(input_transcript, language, display_language):
+    
+    main_transcript = input_transcript
+
+    hf_client = InferenceClient(model=model_hf, token=hf_api_key, headers={"x-wait-for-model": "true"}, timeout=timeout_hf)
+
+    if language == 'ru':
+        base_prompt_template = hf_ru_prompt + """
+            Вот текст, который нужно пересказать:
+
+            {part_text}
+
+            ---
+
+            **Примечание:** Пожалуйста, внимательно следуйте всем приведенным требованиям, чтобы ваш пересказ был максимально информативным и соответствовал заданию.
+        """
+    else:
+        base_prompt_template = hf_en_prompt + """
+            Here is the text that needs to be summarized:
+
+            {part_text}
+
+            ---
+
+            **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
+        """
+
+    if display_language == 'ru':
+        base_prompt_template += "\nОтвечай на русском языке."
+    else:
+        base_prompt_template += "\nAnswer in English."
+
+    encoding = encoding_for_model("gpt-3.5")
+    prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
+    tokens_in_transcript = len(encoding.encode(main_transcript))
+    total_tokens = tokens_in_transcript + prompt_tokens
+    print(f"Общее количество токенов: {total_tokens}")
+
+    if total_tokens <= max_total_tokens_hf:
+        parts = [main_transcript]
+    else:
+        max_transcript_tokens_per_part = max_total_tokens_hf - prompt_tokens
+        parts = split_transcript_into_parts(main_transcript, max_transcript_tokens_per_part)
+
+    all_summaries = []
+    for part_number, part in enumerate(parts, start=1):
+        prompt = base_prompt_template.format(part_text=part)
+        num_tokens = len(encoding.encode(prompt))
+        print(f"Общее количество токенов для части {part_number}: {num_tokens}")
+
+        print(f"Генерация для части {part_number} с использованием модели {model_hf} (Hugging Face)")
+        
+        print(f"Ожидание очереди, максимум - {timeout_hf} секунд")
+        response = hf_client.text_generation(
+            prompt=prompt,
+            max_new_tokens = max_output_tokens_hf
+        )
+
+        summary_text = response.strip()
+        tokens_in_response = len(encoding.encode(summary_text))
+        print(f"Токенов в ответе для части {part_number}: {tokens_in_response}")
+
+        all_summaries.append(f"# Часть {part_number}:\n\n{summary_text}\n\n")
+
+    full_summary = "".join(all_summaries)
+    full_summary = markdown_math_fix(full_summary)
+    return full_summary
