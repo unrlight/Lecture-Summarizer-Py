@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 
 from utils import save_uploaded_files, clean_up_directories
 from transcribe import transcribe_audio_files
-from summarize import summarize_transcript, summarize_with_openai_api, summarize_with_ollama_api, summarize_with_hf_inference_client
+from summarize import summarize_transcript, summarize_with_openai_api, summarize_with_ollama_api, summarize_with_hf_inference_client, summarize_with_groq
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -71,6 +71,8 @@ def process(request: Request):
             summary = summarize_with_ollama_api(transcript, language, display_language, max_attempts)
         elif model_type == "hf":
             summary = summarize_with_hf_inference_client(transcript, language, display_language)
+        elif model_type == "groq":
+            summary = summarize_with_groq(transcript, language, display_language, max_attempts)
         else:
             summary = summarize_with_openai_api(transcript, model_type, language, display_language, max_attempts)
 

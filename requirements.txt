@@ -10,3 +10,4 @@ openai
 python-multipart
 PyPDF2
 huggingface_hub
+groq
