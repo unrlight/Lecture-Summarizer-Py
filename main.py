@@ -26,6 +26,7 @@ app.add_middleware(
 
 session_data = {}
 output_dir = './output_summarized'
+temp_dir = './temp'
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
@@ -63,7 +64,10 @@ def process(request: Request):
         max_attempts = session_data.get('max_attempts', 1)
         model_type = session_data.get('model_type', 'gemini')
 
-        transcript = transcribe_audio_files(files, language, model_size)
+        if model_size == "groq":
+            transcript = transcribe_audio_files(files, language, model_size, 1)
+        else:
+            transcript = transcribe_audio_files(files, language, model_size, 0)
         
         if model_type == "gemini":
             summary = summarize_transcript(transcript, language, display_language, max_attempts)
@@ -86,6 +90,11 @@ def process(request: Request):
         return templates.TemplateResponse("step4.html", {"request": request, "summary": summary})
     except Exception as e:
         print(f"Error in process: {e}")
+        if os.path.exists(temp_dir):
+            for temp_file in os.listdir(temp_dir):
+                os.remove(os.path.join(temp_dir, temp_file))
+            os.rmdir(temp_dir)
+
         return RedirectResponse(url="/")
 
 @app.get("/reset", response_class=HTMLResponse)

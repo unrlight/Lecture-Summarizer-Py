@@ -4,8 +4,12 @@ import whisper
 from datetime import datetime
 from pathlib import Path
 from PyPDF2 import PdfReader
+from groq import Groq
+from utils import split_audio_file_into_parts
 
-def transcribe_audio_files(files, language, model_size):
+groq_api_key = os.environ.get("groq_api_keys")
+
+def transcribe_audio_files(files, language, model_size, USE_GROQ):
     transcript = ""
     temp_dir = './temp'
     os.makedirs(temp_dir, exist_ok=True)
@@ -43,7 +47,6 @@ def transcribe_audio_files(files, language, model_size):
         transcript += combined_pdf_text
 
     if audio_files:
-        model = whisper.load_model(model_size)
         audio_paths = []
 
         for file in audio_files:
@@ -63,8 +66,31 @@ def transcribe_audio_files(files, language, model_size):
         else:
             final_audio = audio_paths[0]
 
-        result = model.transcribe(audio=final_audio, language=language, verbose=False)
-        audio_transcript = result.get('text', '')
+        mp3_audio = os.path.join(temp_dir, 'converted.mp3')
+        ffmpeg.input(final_audio).output(mp3_audio, audio_bitrate='256k').run()
+
+        audio_parts = split_audio_file_into_parts(mp3_audio, max_size_mb=24)
+
+        audio_transcript = ""
+
+        if USE_GROQ:
+            print("Использование Whisper GROQ для транскрибирования текста")
+            client = Groq(api_key=groq_api_key)
+
+            for idx, audio_file in enumerate(audio_parts):
+                with open(audio_file, "rb") as file:
+                    transcription = client.audio.transcriptions.create(
+                        file=(audio_file, file.read()),
+                        model="whisper-large-v3-turbo",
+                        language=language
+                    )
+                    audio_transcript += transcription.text + "\n"
+                    print(f"Часть {idx+1} транскрибирована.")
+        else:
+            print("Использование локального Whisper для транскрибирования текста")
+            model = whisper.load_model(model_size)
+            result = model.transcribe(audio=mp3_audio, language=language, verbose=False)
+            audio_transcript = result.get('text', '')
 
         transcript += "\n" + audio_transcript
 
