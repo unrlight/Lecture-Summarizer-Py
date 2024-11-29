@@ -6,6 +6,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -34,6 +37,20 @@
                 const renderedContent = document.getElementById('rendered-content');
                 renderedContent.innerHTML = marked.parse(markdownText);
                 renderedContent.style.display = 'block';
+
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(renderedContent, {
+                        delimiters: [
+                            {left: "$$", right: "$$", display: true},
+                            {left: "\\[", right: "\\]", display: true},
+                            {left: "$", right: "$", display: false},
+                            {left: "\\(", right: "\\)", display: false}
+                        ],
+                        throwOnError: false
+                    });
+                } else {
+                    console.error('KaTeX renderMathInElement function not found.');
+                }
 
                 const style = document.createElement('style');
                 style.textContent = `
@@ -126,12 +143,21 @@
                     * {
                         box-sizing: border-box;
                     }
-                    
+
                     .container {
                         max-width: 100%;
-                        overflow: visible; /* Allow expansion */
+                        overflow: visible;
                     }
 
+                    p, h1, h2, h3, h4, h5, h6, li, blockquote {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
+
+                    table, thead, tbody, tr, td, th {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
                 `;
                 renderedContent.prepend(style);
 
@@ -142,7 +168,8 @@
                         filename: 'result.pdf',
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: { scale: 2, scrollY: 0 },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['avoid-all'] }
                     })
                     .save()
                     .finally(() => {
@@ -152,6 +179,7 @@
                 console.error('Marked.js error');
             }
         }
+
     </script>
 </body>
 </html>
