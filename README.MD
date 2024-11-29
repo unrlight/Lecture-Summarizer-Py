@@ -104,10 +104,6 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      ```bash
      ollama install qwen2.5
      ```
-   - If you're using Ollama frequently, you can add its configurations in the `.env` file:
-     ```plaintext
-     ollama_model=qwen2.5
-     ```
 
 4. **Run the application:**
    ```bash
