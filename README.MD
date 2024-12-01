@@ -47,6 +47,12 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
    pip install -r requirements.txt
    ```
 
+3. **Install ffmpeg**
+
+    For Windows: [Folow this guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
+
+    For Linux: Simply ```sudo apt-get install ffmpeg```
+
 3. **Set up API keys:**
 
    ### GROQ Free Inference
@@ -112,7 +118,65 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
 
 5. **Access the web interface:** Open your web browser and go to `http://localhost:8005`.
 
-## Whisper Model Sizes
+## Quick Setup with Docker (Experimental)
+
+This is an experimental way to run the project. It doesn't use local Whisper or Ollama and works only with remote inference. You **must** have a GROQ API key.
+
+### Steps
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/unrlight/Lecture-Summarizer-Py.git
+   cd Lecture-Summarizer-Py
+   ```
+
+2. **Create a `.env` file:**
+
+   In the same folder, create a file named `.env` and add this line:
+
+   ```plaintext
+   groq_api_keys=YOUR_API_KEY
+   ```
+
+   Replace `YOUR_API_KEY` with your GROQ API key.
+
+3. **Optional: Add other API keys:**
+
+   If you want to use other LLMs, add these lines to the `.env` file:
+
+   ```plaintext
+   hf_api_keys=YOUR_API_KEY
+   open_ai_api_keys=YOUR_API_KEY
+   gemini_api_keys=YOUR_API_KEY
+   ```
+
+4. **Start the application:**
+
+   Build and run the Docker container:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   For future runs, you can simply use:
+
+   ```bash
+   docker-compose up
+   ```
+
+5. **Access the web interface:**
+
+   Open your browser and go to `http://localhost:8005`.
+
+### Notes
+
+- Whisper Support: Only the GROQ backend is available for audio/video transcription. Selecting any other Whisper model will result in an error.
+- Ollama Support: Ollama is not included in this Docker setup. Selecting Ollama models will also result in an error.
+- You can skip transcription by uploading text files instead of audio/video.
+- For full functionality, including local Whisper and Ollama, follow the full installation instructions.
+
+## Local Whisper Model Sizes
 
 | Size   | Parameters | English-only model | Multilingual model | Required VRAM | Relative Speed |
 |--------|------------|-------------------|--------------------|---------------|----------------|

@@ -6,6 +6,7 @@ from pathlib import Path
 from PyPDF2 import PdfReader
 from groq import Groq
 from utils import split_audio_file_into_parts
+from time import sleep
 
 groq_api_key = os.environ.get("groq_api_keys")
 
@@ -86,6 +87,9 @@ def transcribe_audio_files(files, language, model_size, USE_GROQ):
                     )
                     audio_transcript += transcription.text + "\n"
                     print(f"Часть {idx+1} транскрибирована.")
+                    if (len(audio_parts) > 1):
+                        print("Засыпаем на 65 секунд, из-за ограничений API")
+                        sleep(65)
         else:
             print("Использование локального Whisper для транскрибирования текста")
             model = whisper.load_model(model_size)
