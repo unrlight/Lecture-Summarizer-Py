@@ -175,6 +175,7 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
 - Ollama Support: Ollama is not included in this Docker setup. Selecting Ollama models will also result in an error.
 - You can skip transcription by uploading text files instead of audio/video.
 - For full functionality, including local Whisper and Ollama, follow the full installation instructions.
+- If you want to update the application, clone the repository, replace the files, and rebuild using `docker-compose up --build`.
 
 ## Local Whisper Model Sizes
 
