@@ -9,35 +9,144 @@
 </head>
 <body>
     <div class="interface-wrapper">
-        <div class="container text-center mt-5">
+        <div class="container mt-5">
             <div class="glass-card p-5">
-                <h1 class="mb-4">Шаг 1</h1>
+                <h1 class="text-center mb-4">Шаг 1</h1>
                 <form id="upload-form" action="/step2" enctype="multipart/form-data" method="post">
-                    <div class="form-group">
-                        <label class="btn btn-custom btn-lg">
-                            Выберите ваши файлы
-                            <input 
-                                type="file" 
-                                name="files" 
-                                accept=".mp3,.wav,.mp4,.txt,.srt,.pdf" 
-                                multiple 
-                                hidden 
-                                onchange="this.form.submit()"
-                            >
-                        </label>
+                    <div id="drag-drop-zone" class="drag-drop-zone">
+                        Перетащите файлы сюда или нажмите, чтобы выбрать
+                        <input 
+                            type="file" 
+                            id="file-input" 
+                            name="files" 
+                            accept=".mp3,.wav,.mp4,.txt,.srt,.pdf" 
+                            multiple 
+                            hidden
+                        >
+                    </div>
+                    
+                    <ul id="file-list" class="file-list mt-3"></ul>
+                    
+                    <div class="url-section">
+                        <input 
+                            type="url" 
+                            id="url-input" 
+                            placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+                            class="form-control"
+                        >
+                        <button type="button" id="add-url-btn" class="btn btn-custom">Добавить</button>
                     </div>
 
+                    <input type="hidden" name="urls" id="url-hidden-input" value="">
+
+                    <p class="note">
+                        Если вставить ссылку на YouTube-видео, то оно будет скачано и распознано. 
+                        Если это ссылка на сайт, то текст будет извлечён.
+                    </p>
+                    
+                    <button type="submit" class="btn btn-custom btn-lg btn-block mt-4">Продолжить</button>
+
                     <div class="format-badges">
+                        <span>Поддержка форматов: </span>
                         <span class="badge-format">MP4</span>
                         <span class="badge-format">MP3</span>
                         <span class="badge-format">WAV</span>
                         <span class="badge-format">PDF</span>
                         <span class="badge-format">TXT</span>
                         <span class="badge-format">SRT</span>
+                        <span class="badge-format">WEB URL</span>
+                        <span class="badge-format">YT URL</span>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        const dragDropZone = document.getElementById('drag-drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+        const filesArray = [];
+        const urlInput = document.getElementById('url-input');
+        const addUrlBtn = document.getElementById('add-url-btn');
+        const hiddenUrlInput = document.getElementById('url-hidden-input');
+        const urlList = [];
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            filesArray.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('file-list-item');
+                listItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="remove-file" data-index="${index}">&times;</span>
+                `;
+                fileList.appendChild(listItem);
+            });
+
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    filesArray.splice(index, 1);
+                    updateFileList();
+                });
+            });
+        }
+
+        dragDropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            Array.from(e.target.files).forEach(file => filesArray.push(file));
+            updateFileList();
+        });
+
+        dragDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragDropZone.classList.add('dragover');
+        });
+
+        dragDropZone.addEventListener('dragleave', () => {
+            dragDropZone.classList.remove('dragover');
+        });
+
+        dragDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragDropZone.classList.remove('dragover');
+            Array.from(e.dataTransfer.files).forEach(file => filesArray.push(file));
+            updateFileList();
+        });
+
+        addUrlBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                urlList.push(url);
+
+                hiddenUrlInput.value = JSON.stringify(urlList);
+
+                const listItem = document.createElement('li');
+                listItem.classList.add('file-list-item');
+                listItem.innerHTML = `
+                    <span>${url}</span>
+                    <span class="remove-file" data-url="${url}">&times;</span>
+                `;
+                fileList.appendChild(listItem);
+
+                urlInput.value = '';
+
+                listItem.querySelector('.remove-file').addEventListener('click', (e) => {
+                    const urlToRemove = e.target.getAttribute('data-url');
+                    const index = urlList.indexOf(urlToRemove);
+                    if (index !== -1) {
+                        urlList.splice(index, 1);
+                        hiddenUrlInput.value = JSON.stringify(urlList);
+                    }
+                    listItem.remove();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

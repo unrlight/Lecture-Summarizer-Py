@@ -1,5 +1,6 @@
 import os
 import uvicorn
+import json
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.responses import HTMLResponse
@@ -33,9 +34,22 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/step2", response_class=HTMLResponse)
-def step2(request: Request, files: list[UploadFile] = File(...)):
+def step2(
+    request: Request, 
+    files: list[UploadFile] = File(...), 
+    urls: str = Form("")
+):
+
     uploaded_file_paths = save_uploaded_files(files)
     session_data['files'] = uploaded_file_paths
+
+    try:
+        url_list = json.loads(urls) if urls else []
+    except json.JSONDecodeError:
+        url_list = []
+
+    session_data['urls'] = url_list
+
     return templates.TemplateResponse("step2.html", {"request": request})
 
 @app.post("/step3", response_class=HTMLResponse)

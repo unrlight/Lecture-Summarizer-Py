@@ -94,3 +94,65 @@ select.form-control option {
     font-size: 0.9rem;
     margin-right: 10px;
 }
+
+.drag-drop-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+}
+
+.drag-drop-zone.dragover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+}
+
+.file-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.remove-file {
+    color: #ff0000;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.url-section {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.url-section input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.url-section button {
+    margin-left: 10px;
+}
+
+.note {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 10px;
+}
