@@ -49,9 +49,11 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
 
 3. **Install ffmpeg**
 
-    For Windows: [Folow this guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
+    - Linux: ```sudo apt-get install ffmpeg```
 
-    For Linux: Simply ```sudo apt-get install ffmpeg```
+    - Windows ([chocolatey](https://chocolatey.org/install) install): ```choko install ffmpeg-full```
+
+    - Windows (manual install): [Folow this guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
 
 3. **Set up API keys:**
 
