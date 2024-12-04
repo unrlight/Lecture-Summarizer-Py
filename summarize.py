@@ -86,12 +86,12 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
     print(f"Общее количество токенов: {total_tokens}")
 
     if total_tokens <= max_total_tokens_gemini:
-        model_name = "gemini-1.5-pro-002"
+        model_name = "gemini-1.5-pro"
         max_attempts = 1
         parts = [transcript]
-        print("Используется модель gemini-1.5-pro-002 с 1 попыткой генерации.")
+        print("Используется модель gemini-1.5-pro с 1 попыткой генерации.")
     else:
-        model_name = "gemini-1.5-flash-002"
+        model_name = "gemini-1.5-flash"
         max_attempts = user_max_attempts
         max_transcript_tokens_per_part = max_total_tokens_gemini - prompt_tokens
         parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
