@@ -1,7 +1,5 @@
 # Lecture Summarizer
 
-## Description
-
 This project uses Whisper and Large Language Models (LLMs) to summarize lectures from audio/video files. It provides an intuitive web interface for uploading files, selecting summarization options, and viewing the generated markdown summaries.
 
 <table>
@@ -34,30 +32,54 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
 
 ## How to Run
 
-1. **Clone the repository:**
+### 1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/unrlight/Lecture-Summarizer-Py.git
    cd Lecture-Summarizer-Py
    ```
 
-2. **Install the requirements:**
+### 2. **Install the requirements:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Install ffmpeg**
+### 3. Install ffmpeg
 
-    - Linux: ```sudo apt-get install ffmpeg```
+#### Linux
+  ```bash
+  sudo apt-get install ffmpeg
+  ```
 
-    - Windows ([chocolatey](https://chocolatey.org/install) install): ```choko install ffmpeg-full```
+#### Windows
+  - **Using Chocolatey:** If you have [Chocolatey](https://chocolatey.org/install) installed, run:
+    ```bash
+    choco install ffmpeg-full
+    ```
 
-    - Windows (manual install): [Folow this guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
+   - **Manual Install:** Follow [this guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/) to download and set up ffmpeg manually.
 
-3. **Set up API keys:**
+### 4. Install Tesseract-OCR
 
-   ### GROQ Free Inference
+#### Linux
+  ```bash
+  sudo apt-get install tesseract-ocr
+  ```
+
+  To install additional language packs (e.g., Russian):
+  ```bash
+  sudo apt-get install tesseract-ocr-rus
+  ```
+
+#### Windows
+  - Download the installer from [GitHub](https://github.com/UB-Mannheim/tesseract/releases/download/v5.4.0.20240606/tesseract-ocr-w64-setup-5.4.0.20240606.exe).
+  - Run the installer and follow the setup instructions.
+  - During the installation, select the additional language packs you need (e.g., Russian).
+
+### 3. **Set up API keys:**
+
+   #### GROQ Free Inference
    Add your GROQ API key as an environment variable or in the `.env` file:
    - **Environment Variable:**
      ```bash
@@ -69,7 +91,7 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      groq_api_keys=YOUR_API_KEY
      ```
 
-   ### Hugging Face Free Inference
+   #### Hugging Face Free Inference
    Add your Hugging Face API key:
    - **Environment Variable:**
      ```bash
@@ -81,7 +103,7 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      hf_api_keys=YOUR_API_KEY
      ```
 
-   ### OpenAI API
+   #### OpenAI API
    Add your OpenAI API key:
    - **Environment Variable:**
      ```bash
@@ -93,7 +115,7 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      open_ai_api_keys=YOUR_API_KEY
      ```
 
-   ### Gemini API
+   #### Gemini API
    Add your Gemini API key:
    - **Environment Variable:**
      ```bash
@@ -105,7 +127,7 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      gemini_api_keys=YOUR_API_KEY
      ```
 
-   ### Ollama for Local LLMs
+   #### Ollama for Local LLMs
    Ollama allows you to run local models such as Qwen 2.5. To configure Ollama:
    - **Download and Install Ollama:** [Download here](https://ollama.com/download).
    - **Install the desired model:** For example, to use the Qwen 2.5 model, run:
@@ -113,12 +135,12 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
      ollama install qwen2.5
      ```
 
-4. **Run the application:**
+### 4. **Run the application:**
    ```bash
    uvicorn main:app --reload --host 0.0.0.0 --port 8005
    ```
 
-5. **Access the web interface:** Open your web browser and go to `http://localhost:8005`.
+### 5. **Access the web interface:** Open your web browser and go to `http://localhost:8005`.
 
 ## Quick Setup with Docker (Experimental)
 
@@ -126,14 +148,14 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
 
 ### Steps
 
-1. **Clone the repository:**
+#### 1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/unrlight/Lecture-Summarizer-Py.git
    cd Lecture-Summarizer-Py
    ```
 
-2. **Create a `.env` file:**
+#### 2. **Create a `.env` file:**
 
    In the same folder, create a file named `.env` and add this line:
 
@@ -143,7 +165,7 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
 
    Replace `YOUR_API_KEY` with your GROQ API key.
 
-3. **Optional: Add other API keys:**
+#### 3. **Optional: Add other API keys:**
 
    If you want to use other LLMs, add these lines to the `.env` file:
 
@@ -153,7 +175,7 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
    gemini_api_keys=YOUR_API_KEY
    ```
 
-4. **Start the application:**
+#### 4. **Start the application:**
 
    Build and run the Docker container:
 
@@ -167,9 +189,12 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
    docker-compose up
    ```
 
-5. **Access the web interface:**
+#### 5. **Access the web interface:**
 
-   Open your browser and go to `http://localhost:8005`.
+   Open your browser and go to this url:
+   ```
+   http://localhost:8005/
+   ```
 
 ### Notes
 
