@@ -13,6 +13,37 @@ This project uses Whisper and Large Language Models (LLMs) to summarize lectures
   </tr>
 </table>
 
+Table of Contents
+=================
+   * [Features](#features)
+   * [How to Run](#how-to-run)
+      * [1. <strong>Clone the repository:</strong>](#1-clone-the-repository)
+      * [2. <strong>Install the requirements:</strong>](#2-install-the-requirements)
+      * [3. Install ffmpeg](#3-install-ffmpeg)
+         * [Linux](#linux)
+         * [Windows](#windows)
+      * [4. Install Tesseract-OCR](#4-install-tesseract-ocr)
+         * [Linux](#linux-1)
+         * [Windows](#windows-1)
+      * [3. <strong>Set up API keys:</strong>](#3-set-up-api-keys)
+         * [GROQ Free Inference](#groq-free-inference)
+         * [Hugging Face Free Inference](#hugging-face-free-inference)
+         * [OpenAI API](#openai-api)
+         * [Gemini API](#gemini-api)
+         * [Ollama for Local LLMs](#ollama-for-local-llms)
+      * [4. <strong>Run the application:</strong>](#4-run-the-application)
+      * [5. <strong>Access the web interface:</strong> Open your web browser and go to http://localhost:8005.](#5-access-the-web-interface-open-your-web-browser-and-go-to-httplocalhost8005)
+   * [Quick Setup with Docker (Experimental)](#quick-setup-with-docker-experimental)
+      * [Steps](#steps)
+         * [1. <strong>Clone the repository:</strong>](#1-clone-the-repository-1)
+         * [2. <strong>Create a .env file:</strong>](#2-create-a-env-file)
+         * [3. <strong>Optional: Add other API keys:</strong>](#3-optional-add-other-api-keys)
+         * [4. <strong>Start the application:</strong>](#4-start-the-application)
+         * [5. <strong>Access the web interface:</strong>](#5-access-the-web-interface)
+      * [Notes](#notes)
+   * [Local Whisper Model Sizes](#local-whisper-model-sizes)
+
+
 ## Features
 
 - **Summarization of Multiple File Formats:** Supports summarization of `mp4`, `mp3`, `wav`, `pdf`, `txt`, and `srt` files without limits on file count.
