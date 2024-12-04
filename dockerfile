@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    tesseract-ocr \
+    tesseract-ocr-rus \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
     

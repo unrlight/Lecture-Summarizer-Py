@@ -46,7 +46,7 @@ Table of Contents
 
 ## Features
 
-- **Summarization of Multiple File Formats:** Supports summarization of `mp4`, `mp3`, `wav`, `pdf`, `txt`, and `srt` files without limits on file count.
+- **Summarization of Multiple File Formats:** Supports summarization of `mp4`, `mp3`, `wav`, `pdf`, `txt`, `srt`, `docx`, and `pptx` files without limits on file count.
 - **Automatic Audio Transcription:** Extracts text from audio in `mp4`, `mp3`, and `wav` files.
 - **Markdown Output:** Presents summaries in markdown format, ideal for tools like Obsidian.
 - **Download Rendered Results:** Allows downloading the generated markdown as a PDF file.
@@ -60,6 +60,9 @@ Table of Contents
 - **Free Inference Support:**
   - **GROQ for transcription and summarization**
   - **Hugging Face for summarization**
+- **Web Page Summarization:** Supports summarization of content directly from web pages via URL.
+- **YouTube Video Summarization:** Summarizes YouTube videos directly using their URLs.
+- **Microsoft Word and PowerPoint Summarization:** Processes and summarizes documents in `docx` and `pptx` formats.
 
 ## How to Run
 

@@ -10,6 +10,8 @@ import requests
 from groq import Groq
 from utils import split_audio_file_into_parts
 from time import sleep
+from docx import Document
+from pptx import Presentation
 
 groq_api_key = os.environ.get("groq_api_keys")
 
@@ -20,6 +22,8 @@ def transcribe_audio_files(files, urls, language, model_size, USE_GROQ):
     text_files = []
     audio_files = []
     pdf_files = []
+    docx_files = []
+    pptx_files = []
 
     print("Список файлов:")
     for file in files:
@@ -29,6 +33,10 @@ def transcribe_audio_files(files, urls, language, model_size, USE_GROQ):
             text_files.append(file)
         elif extension == '.pdf':
             pdf_files.append(file)
+        elif extension in ['.docx']:
+            docx_files.append(file)
+        elif extension in ['.pptx']:
+            pptx_files.append(file)
         elif extension in ['.mp3', '.wav', '.mp4']:
             audio_files.append(file)
         else:
@@ -65,6 +73,20 @@ def transcribe_audio_files(files, urls, language, model_size, USE_GROQ):
             page_text = scrape_text_from_url(url)
             if page_text:
                 transcript += "\n" + page_text
+
+    if docx_files:
+        for word_file in docx_files:
+            try:
+                transcript += process_word_file(word_file) + "\n"
+            except Exception as e:
+                print(f"Ошибка при обработке Word файла {word_file}: {e}")
+
+    if pptx_files:
+        for pptx_file in pptx_files:
+            try:
+                transcript += process_pptx_file(pptx_file) + "\n"
+            except Exception as e:
+                print(f"Ошибка при обработке PowerPoint файла {pptx_file}: {e}")
 
     if not audio_files:
         print("Аудиофайлы отсутствуют для обработки")
@@ -187,3 +209,20 @@ def download_youtube_audio(url, temp_dir):
     except Exception as e:
         print(f"Ошибка при загрузке YouTube-видео: {e}")
         return None
+    
+def process_word_file(file_path):
+    doc = Document(file_path)
+    text = []
+    for paragraph in doc.paragraphs:
+        text.append(paragraph.text)
+    return "\n".join(text)
+
+def process_pptx_file(file_path):
+    presentation = Presentation(file_path)
+    text = []
+    for slide in presentation.slides:
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                for paragraph in shape.text_frame.paragraphs:
+                    text.append(paragraph.text)
+    return "\n".join(text)

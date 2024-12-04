@@ -14,3 +14,5 @@ groq
 ocrmypdf
 yt_dlp
 bs4
+python-pptx
+python-docx
