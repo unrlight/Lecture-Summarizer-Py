@@ -183,8 +183,11 @@ This is an experimental way to run the project. It doesn't use local Whisper or 
 
 | Size   | Parameters | English-only model | Multilingual model | Required VRAM | Relative Speed |
 |--------|------------|-------------------|--------------------|---------------|----------------|
-| small  | 244 M      | `small.en`        | `small`           | ~2 GB         | ~4x            |
-| medium | 769 M      | `medium.en`       | `medium`          | ~5 GB         | ~2x            |
-| large  | 1550 M     | N/A              | `large`           | ~10 GB        | 1x             |
+|  tiny  |    39 M    |     `tiny.en`      |       `tiny`       |     ~1 GB     |      ~10x      |
+|  base  |    74 M    |     `base.en`      |       `base`       |     ~1 GB     |      ~7x       |
+| small  |   244 M    |     `small.en`     |      `small`       |     ~2 GB     |      ~4x       |
+| medium |   769 M    |    `medium.en`     |      `medium`      |     ~5 GB     |      ~2x       |
+| large  |   1550 M   |        N/A         |      `large`       |    ~10 GB     |       1x       |
+| turbo  |   809 M    |        N/A         |      `turbo`       |     ~6 GB     |      ~8x       |
 
 Choose a model size based on your resource availability and desired balance between speed and accuracy. The selected Whisper model will be downloaded automatically on the first run.
