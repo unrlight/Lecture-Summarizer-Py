@@ -40,8 +40,13 @@ def step2(
     urls: str = Form("")
 ):
 
-    uploaded_file_paths = save_uploaded_files(files)
-    session_data['files'] = uploaded_file_paths
+    try:
+        uploaded_file_paths = save_uploaded_files(files)
+        session_data['files'] = uploaded_file_paths
+    except Exception as e:
+        print(f"Error: {e}")
+        uploaded_file_paths = []
+        session_data['files'] = uploaded_file_paths
 
     try:
         url_list = json.loads(urls) if urls else []
@@ -72,6 +77,7 @@ def step3(
 def process(request: Request):
     try:
         files = session_data.get('files', [])
+        urls = session_data.get('urls', [])
         language = session_data.get('language', 'ru')
         display_language = session_data.get('display_language', 'ru')
         model_size = session_data.get('model_size', 'small')
@@ -79,9 +85,9 @@ def process(request: Request):
         model_type = session_data.get('model_type', 'gemini')
 
         if model_size == "groq":
-            transcript = transcribe_audio_files(files, language, model_size, 1)
+            transcript = transcribe_audio_files(files, urls, language, model_size, 1)
         else:
-            transcript = transcribe_audio_files(files, language, model_size, 0)
+            transcript = transcribe_audio_files(files, urls, language, model_size, 0)
         
         if model_type == "gemini":
             summary = summarize_transcript(transcript, language, display_language, max_attempts)

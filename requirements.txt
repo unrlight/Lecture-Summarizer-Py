@@ -12,3 +12,5 @@ PyPDF2
 huggingface_hub
 groq
 ocrmypdf
+yt_dlp
+bs4
