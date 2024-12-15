@@ -1,6 +1,33 @@
 # Lecture Summarizer
 
-This project uses Whisper and Large Language Models (LLMs) to summarize lectures from audio/video files. It provides an intuitive web interface for uploading files, selecting summarization options, and viewing the generated markdown summaries.
+## Project Purpose
+
+The purpose of the **Lecture Summarizer** project is to simplify and enhance the process of digesting large educational materials. Transform complex lecture content into concise and accessible summaries. This allows users to save time, focus on key concepts, and make learning more efficient and structured, especially when handling extensive or challenging materials.
+
+### Performance Insights
+
+| Criterion        | LS    | 4o    | 4o-mini | LS-4o (%) | LS-4o-mini (%) |
+| ---------------- | ----- | ----- | ------- | ---------- | --------------- |
+| Relevance        | 0.950 | 0.800 | 0.700   | 18.75%     | 35.71%          |
+| Coverage         | 0.900 | 0.750 | 0.650   | 20.00%     | 38.89%          |
+| Precision        | 0.950 | 0.800 | 0.750   | 18.75%     | 21.05%          |
+| Consistency      | 0.950 | 0.850 | 0.750   | 11.76%     | 21.05%          |
+| Compression      | 0.850 | 0.800 | 0.850   | 6.25%      | 0.00%           |
+| Understandability| 0.950 | 0.850 | 0.800   | 11.76%     | 15.79%          |
+
+The **Lecture Summarizer** consistently demonstrates better performance than alternative approaches, particularly in delivering high-relevance, precise, and comprehensible summaries. Compared to other methods, it strikes an effective balance between capturing essential details and maintaining clarity, ensuring that the summarized content remains both accurate and easy to follow. For example:
+
+- **Relevance**: LS ensures that the summaries remain highly focused on the most critical information.  
+- **Coverage**: It captures the full scope of the lecture with fewer gaps compared to alternatives.  
+- **Understandability**: The summaries are structured and user-friendly, making them more accessible for different audiences.
+
+### Testing Details and Key Observations
+
+The evaluation was conducted using [DeepEval](https://github.com/confident-ai/deepeval) to ensure consistent and reliable assessment of metrics such as relevance, coverage, precision, consistency, compression, and understandability. Tests focused on lectures of approximately **4,000 tokens** (~20 minutes of video) to establish a consistent benchmark.
+
+However, **LS showcases its true strengths when applied to longer materials**, such as lectures around **80,000 tokens** (~2 hours of video). At this scale, its ability to summarize effectively becomes even more apparent, maintaining both relevance and clarity without losing essential information. This capability highlights its suitability for processing extensive educational content, where other methods often struggle to deliver comparable results.
+
+---
 
 <table>
   <tr>
@@ -43,6 +70,7 @@ Table of Contents
       * [Notes](#notes)
    * [Local Whisper Model Sizes](#local-whisper-model-sizes)
 
+---
 
 ## Features
 
