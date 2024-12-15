@@ -200,6 +200,7 @@ def download_youtube_audio(url, temp_dir):
             info_dict = ydl.extract_info(url, download=True)
             base_filename = ydl.prepare_filename(info_dict)
             mp3_filename = base_filename.replace('.m4a', '.mp3')
+            mp3_filename = base_filename.replace('.webm', '.mp3')
             
             if not os.path.exists(mp3_filename):
                 print(f"Файл {mp3_filename} не найден после обработки")
