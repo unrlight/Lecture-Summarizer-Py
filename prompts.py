@@ -507,34 +507,3 @@ Your task is to make the most detailed summary of the entire lecture, using beau
 
 **Text of the lecture that needs to be summarized:**
 """
-
-    ru_note = """**Примечание:** Пожалуйста, внимательно следуй всем указанным требованиям,
-чтобы пересказ получился максимально информативным и соответствующим заданию.\n"""
-    
-    en_note = """**Note:** Please follow all the requirements carefully to ensure the summary is as informative and appropriate to the assignment as possible.\n"""
-
-    ru_first_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь 1 часть из {parts_count}.
-Ты обязан не делать заключение в этой части по причине того, что ты делаешь только 1 часть пересказа\n"""
-
-    ru_last_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь последнюю часть из {parts_count}.
-Ты завершаешь пересказ лекции, поэтому ты не можешь начать делать введение.
-Ниже я тебе добавлю пересказы всех предудщих частей. Ты должен использовать их для контекста.
-Твоей задачей будет сделать пересказ последней части, а также сделать итоги и выводы всего пересказа.\n"""
-
-    ru_middle_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь {part_number} часть из {parts_count}.
-Ты продолжаешь пересказ лекции, поэтому ты не можешь начать делать общее введение и общие выводы.
-Ниже я тебе добавлю пересказы всех предудщих частей. Ты должен использовать их для контекста.
-Твоей задачей будет сделать пересказ текущей части\n"""
-
-    en_first_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing part 1 of {parts_count}.
-You must not draw conclusions in this part, as you are only making the first segment of the summary.\n"""
-
-    en_last_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing the last part out of {parts_count}.
-You are finishing the summary of the lecture, so you cannot start making an introduction now.
-Below, I will provide you with the summaries of all previous parts for context.
-Your task is to summarize this final part and also provide overall conclusions and final insights.\n"""
-
-    en_middle_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing part {part_number} of {parts_count}.
-You are continuing the summary of the lecture, so you cannot start making a general introduction or conclusions.
-Below, I will provide you with the summaries of all previous parts for context.
-Your task is to summarize the current part.\n"""

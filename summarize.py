@@ -5,7 +5,7 @@ from google.generativeai import configure, GenerativeModel
 import openai
 import ollama
 from dotenv import load_dotenv
-from utils import split_transcript_into_parts, markdown_math_fix, prompt_contructor
+from utils import split_transcript_into_parts, markdown_math_fix, prompt_constructor
 from providers import oai_inference
 from prompts import *
 from translate import *
@@ -166,7 +166,7 @@ def summarize_with_openai_api(input_transcript, model_type, language, display_la
 
     for part_number, part in enumerate(parts, start=1):
 
-        prompt = prompt_contructor(language, display_language, part_number, part, model_type, all_summaries, parts_count)
+        prompt = prompt_constructor(language, display_language, part_number, part, model_type, all_summaries, parts_count)
         print(f"Количество токенов в текущем промпте: {len(encoding.encode(prompt))}")
 
         generated_text = oai_inference(prompt, max_output_tokens_openai, temperature, model_type)
