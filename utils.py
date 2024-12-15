@@ -3,8 +3,17 @@ import shutil
 from tiktoken import encoding_for_model
 import re
 import ffmpeg
+from prompts import *
 
 max_tokens_per_part = 5000
+
+def save_output(fn):
+    def wrapper(*args, **kwargs):
+        result = fn(*args, **kwargs)
+        with open("debug_prompt.txt", "a", encoding="utf-8") as myfile:
+            myfile.write(result)
+        return result
+    return wrapper
 
 def save_uploaded_files(files):
     upload_dir = "uploads"
@@ -17,8 +26,13 @@ def save_uploaded_files(files):
         file_paths.append(file_location)
     return file_paths
 
-def split_transcript_into_parts(transcript, max_transcript_tokens_per_part):
-    encoding = encoding_for_model("gpt-3.5")
+def split_transcript_into_parts(transcript, max_transcript_tokens_per_part, model):
+
+    if model == "gpt-4o-mini" or "gpt-4o":
+        encoding = encoding_for_model("gpt-4o")
+    else:
+        encoding = encoding_for_model("gpt-3.5")
+
     tokens = encoding.encode(transcript)
     total_tokens = len(tokens)
     print(f"Количество токенов в транскрипте: {total_tokens}")
@@ -87,3 +101,145 @@ def markdown_math_fix(text_input):
     text_output = re.sub(r'[ \t]*\\\]', r'$$', text_output)
     
     return text_output
+
+@save_output
+def prompt_constructor(input_language, display_language, part_number, part_text, model, context, parts_count):
+    output_prompt = ""
+
+    print(f"Создание промпта для части {part_number} из {parts_count}")
+
+    ru_note = """**Примечание:** Пожалуйста, внимательно следуй всем указанным требованиям,
+чтобы пересказ получился максимально информативным и соответствующим заданию.\n"""
+
+    ru_first_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь 1 часть из {parts_count}.
+Ты обязан не делать заключение в этой части по причине того, что ты делаешь только 1 часть пересказа\n"""
+
+    ru_last_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь последнюю часть из {parts_count}.
+Ты завершаешь пересказ лекции, поэтому ты не можешь начать делать введение.
+Твоей задачей будет сделать пересказ последней части, а также сделать итоги и выводы всего пересказа.\n"""
+
+    ru_middle_part_info = f"""**Важно!** Строй повествование и пересказ с учетом того, что ты пересказываешь {part_number} часть из {parts_count}.
+Ты продолжаешь пересказ лекции, поэтому ты не можешь начать делать общее введение и общие выводы.
+Твоей задачей будет сделать пересказ текущей части\n"""
+
+    en_note = """**Note:** Please follow all the requirements carefully to ensure the summary is as informative and appropriate to the assignment as possible.\n"""
+
+    en_first_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing part 1 of {parts_count}.
+You must not draw conclusions in this part, as you are only making the first segment of the summary.\n"""
+
+    en_last_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing the last part of {parts_count}.
+You are finishing the summary of the lecture, so you cannot start making an introduction.
+Your task is to summarize this final part and also provide overall conclusions and final insights.\n"""
+
+    en_middle_part_info = f"""**Important!** Construct the narrative and summary with the understanding that you are summarizing part {part_number} of {parts_count}.
+You are continuing the summary of the lecture, so you cannot start making a general introduction or conclusions.
+Your task is to summarize the current part.\n"""
+
+    if model == "gpt-4o":
+        context_for_prompt = context[-1] if context else ""
+        ru_context_text = f"Вот пересказ только прошлой части тебе для контекста:\n {context_for_prompt}\n"
+        en_context_text = f"Here is only the summary of the previous part for your context:\n {context_for_prompt}\n"
+    elif model == "gpt-4o-mini":
+        full_context = "\n".join(context) if context else ""
+        ru_context_text = f"Вот пересказы предыдущих частей тебе для контекста:\n {full_context}\n"
+        en_context_text = f"Here are the summaries of the previous parts for your context:\n {full_context}\n"
+    else:
+        context_for_prompt = context[-1] if context else ""
+        ru_context_text = f"Вот пересказ только прошлой части тебе для контекста:\n {context_for_prompt}\n"
+        en_context_text = f"Here is only the summary of the previous part for your context:\n {context_for_prompt}\n"
+
+    if input_language == "ru":
+        if model == "gpt-4o" or model == "gpt-4o-mini":
+            if parts_count > 1:
+                if part_number == 1:
+                    output_prompt = (
+                        f"{openai_ru_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{ru_note}"
+                        "---\n"
+                        f"{ru_first_part_info}"
+                    )
+                elif part_number == parts_count:
+                    output_prompt = (
+                        f"{openai_ru_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{ru_note}"
+                        "---\n"
+                        f"{ru_last_part_info}"
+                        "---\n"
+                        f"{ru_context_text}"
+                    )
+                else:
+                    output_prompt = (
+                        f"{openai_ru_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{ru_note}"
+                        "---\n"
+                        f"{ru_middle_part_info}"
+                        "---\n"
+                        f"{ru_context_text}"
+                    )
+            else:
+                output_prompt = (
+                    f"{openai_ru_prompt}\n{part_text}\n"
+                    "---\n"
+                    f"{ru_note}"
+                )
+
+    elif input_language == "en":
+        if model == "gpt-4o" or model == "gpt-4o-mini":
+            if parts_count > 1:
+                if part_number == 1:
+                    output_prompt = (
+                        f"{openai_en_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{en_note}"
+                        "---\n"
+                        f"{en_first_part_info}"
+                    )
+                elif part_number == parts_count:
+                    output_prompt = (
+                        f"{openai_en_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{en_note}"
+                        "---\n"
+                        f"{en_last_part_info}"
+                        "---\n"
+                        f"{en_context_text}"
+                    )
+                else:
+                    output_prompt = (
+                        f"{openai_en_prompt}\n{part_text}\n"
+                        "---\n"
+                        f"{en_note}"
+                        "---\n"
+                        f"{en_middle_part_info}"
+                        "---\n"
+                        f"{en_context_text}"
+                    )
+            else:
+                output_prompt = (
+                    f"{openai_en_prompt}\n{part_text}\n"
+                    "---\n"
+                    f"{en_note}"
+                )
+
+    if display_language == "ru":
+        output_prompt += (
+            "---\n"
+            "Отвечай на русском языке\n"
+            "---\n"
+            "Текст пересказа:\n"
+        )
+    elif display_language == "en":
+        output_prompt += (
+            "---\n"
+            "Answer in English\n"
+            "---\n"
+            "Summary text:\n"
+        )
+
+    return output_prompt
+
+
+    

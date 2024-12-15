@@ -5,7 +5,8 @@ from google.generativeai import configure, GenerativeModel
 import openai
 import ollama
 from dotenv import load_dotenv
-from utils import split_transcript_into_parts, markdown_math_fix
+from utils import split_transcript_into_parts, markdown_math_fix, prompt_contructor
+from providers import oai_inference
 from prompts import *
 from translate import *
 import time
@@ -21,8 +22,8 @@ temperature = 1.5
 max_total_tokens_gemini = 14000 # for split function only; default is 14000
 max_output_tokens_gemini = 8192 # 8192 is max; default is 8192
 
-max_total_tokens_openai = 16000 # for split function only; default is 16000
-max_output_tokens_openai = 8192 # 16384 is max; default is 8192
+max_total_tokens_openai = 4096 # for split function only; default is 8192
+max_output_tokens_openai = 4096 # 16384 is max; default is 8192
 
 max_total_tokens_ollama = 10000 # for split function only; default is 10000
 num_predict_ollama = 10000 # max output tokens; default is 10000
@@ -147,93 +148,39 @@ def summarize_with_openai_api(input_transcript, model_type, language, display_la
     
     openai.api_key = openai_api_key
 
-    main_transcript = input_transcript
+    encoding = encoding_for_model("gpt-4o")
 
-    if language == 'ru':
+    tokens_in_transcript = len(encoding.encode(input_transcript))
 
-        # main_transcript = translate_openai(main_transcript, "russian", "english")
+    print(f"Количество токенов в транскрипте: {tokens_in_transcript}")
 
-        base_prompt_template = ollama_en_prompt + """
-
-            {part_text}
-
-            ---
-
-                **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
-            """
-
-    else:
-        base_prompt_template = ollama_en_prompt + """
-
-            {part_text}
-
-            ---
-
-                **Note:** Please follow all the given requirements carefully to ensure that your retelling is as informative and relevant to the task as possible.
-            """
-
-    if display_language=="ru":
-        base_prompt_template = base_prompt_template + "\nОтвечай на русском языке."
-    else:
-        base_prompt_template = base_prompt_template + "\nAnswer in English."
-
-    encoding = encoding_for_model("gpt-4")
-    tokens_in_transcript = len(encoding.encode(main_transcript))
-    prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
-    total_tokens = tokens_in_transcript + prompt_tokens
-    print(f"Общее количество токенов: {total_tokens}")
-
-    if total_tokens <= max_total_tokens_openai:
-        parts = [main_transcript]
+    if tokens_in_transcript <= max_total_tokens_openai:
+        parts = [input_transcript]
         print("Транскрипт достаточно короткий, не требуется разделение.")
     else:
-        max_transcript_tokens_per_part = max_total_tokens_openai - prompt_tokens
-        parts = split_transcript_into_parts(main_transcript, max_transcript_tokens_per_part)
+        parts = split_transcript_into_parts(input_transcript, max_total_tokens_openai, model_type)
         print(f"Транскрипт разделён на {len(parts)} частей.")
 
     all_summaries = []
+    parts_count = len(parts)
 
     for part_number, part in enumerate(parts, start=1):
-        prompt = base_prompt_template.format(part_text=part)
-        num_tokens = len(encoding.encode(prompt))
-        print(f"Общее количество токенов для части {part_number}: {num_tokens}")
 
-        max_tokens_in_summary = 0
-        best_summary = ""
+        prompt = prompt_contructor(language, display_language, part_number, part, model_type, all_summaries, parts_count)
+        print(f"Количество токенов в текущем промпте: {len(encoding.encode(prompt))}")
 
-        for attempt in range(user_max_attempts):
-            print(f"Попытка {attempt + 1} для части {part_number} с моделью OpenAI {model_type}")
+        generated_text = oai_inference(prompt, max_output_tokens_openai, temperature, model_type)
 
-            response = openai.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-                model=model_type,
-                max_tokens=max_output_tokens_openai,
-                temperature=temperature / 2,
-            )
+        tokens_in_response = len(encoding.encode(generated_text))
+        print(f"Токенов в ответе для части {part_number}: {tokens_in_response}")
 
-            generated_text = response.choices[0].message.content.strip()
-            tokens_in_response = len(encoding.encode(generated_text))
-            print(f"Токенов в ответе для части {part_number}: {tokens_in_response}")
+        all_summaries.append(f"# Часть {part_number}:\n\n{generated_text}\n\n")
 
-            if tokens_in_response > max_tokens_in_summary:
-                max_tokens_in_summary = tokens_in_response
-                best_summary = generated_text
+    output_summary = "".join(all_summaries)
 
-        all_summaries.append(f"# Часть {part_number}:\n\n{best_summary}\n\n")
+    output_summary = markdown_math_fix(output_summary)
 
-    full_summary = "".join(all_summaries)
-
-    # if(display_language=="ru"):
-    #    full_summary = translate_openai(full_summary,"english","russian")
-
-    full_summary = markdown_math_fix(full_summary)
-
-    return full_summary
+    return output_summary
 
 def summarize_with_ollama_api(input_transcript, language, display_language, max_attempts):
 
