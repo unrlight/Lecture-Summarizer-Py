@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Youtube в текст</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="interface-wrapper">
+        <div class="container mt-5">
+            <div class="glass-card p-5">
+                <h1 class="text-center mb-4">Youtube в текст</h1>
+                <form action="/youtube_waiting" method="post">
+                    <div class="form-group">
+                        <label for="youtube_link">Ссылка на YouTube-видео:</label>
+                        <input 
+                            type="url" 
+                            class="form-control" 
+                            id="youtube_link" 
+                            name="youtube_link"
+                            placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" 
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="original_language">Язык оригинала:</label>
+                        <select name="original_language" id="original_language" class="form-control">
+                            <option value="ru">Русский</option>
+                            <option value="en">Английский</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="model_size">Выберите размер модели Whisper:</label>
+                        <select name="model_size" id="model_size" class="form-control">
+                            <option value="groq">turbo (large) GROQ free</option>
+                            <option value="turbo">turbo (large)</option>
+                            <option value="large">large</option>
+                            <option value="medium">medium</option>
+                            <option value="small">small</option>
+                            <option value="base">base</option>
+                            <option value="tiny">tiny</option>
+                            
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-custom btn-lg btn-block">Запустить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

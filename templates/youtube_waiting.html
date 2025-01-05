@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ожидание обработки</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+</head>
+
+<body onload="window.location.href='/youtube_process'">
+    <div class="interface-wrapper">
+        <div class="container text-center mt-5">
+            <div class="glass-card p-5">
+                <h1 class="mb-4">Подождите...</h1>
+                <p class="lead">Идёт распознавание видео, пожалуйста, подождите.</p>
+                <a href="/reset" class="btn btn-custom btn-lg btn-block">Отмена</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

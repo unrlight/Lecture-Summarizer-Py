@@ -124,5 +124,54 @@ def reset(request: Request):
     clean_up_directories(['uploads', 'temp'])
     return RedirectResponse(url="/")
 
+@app.get("/youtube_to_text", response_class=HTMLResponse)
+def youtube_to_text(request: Request):
+    return templates.TemplateResponse("youtube_index.html", {"request": request})
+
+@app.post("/youtube_waiting", response_class=HTMLResponse)
+def youtube_waiting(
+    request: Request,
+    youtube_link: str = Form(...),
+    original_language: str = Form(...), 
+    model_size: str = Form(...)
+):
+    session_data['youtube_link'] = youtube_link
+    session_data['model_size'] = model_size
+    session_data['language'] = original_language
+
+    return templates.TemplateResponse("youtube_waiting.html", {"request": request})
+
+@app.get("/youtube_process", response_class=HTMLResponse)
+def youtube_process(request: Request):
+    try:
+        link = session_data.get('youtube_link')
+        model_size = session_data.get('model_size', 'groq')
+        language = session_data.get('language', 'ru')
+        
+        if model_size == "groq":
+            transcript_text = transcribe_audio_files([], [link], language, model_size, 1)
+        else:
+            transcript_text = transcribe_audio_files([], [link], language, model_size, 0)
+
+        session_data['youtube_transcript'] = transcript_text
+
+        return RedirectResponse(url="/youtube_result", status_code=303)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return RedirectResponse(url="/reset", status_code=303)
+    
+@app.get("/youtube_result", response_class=HTMLResponse)
+def youtube_result(request: Request):
+    transcript_text = session_data.get('youtube_transcript', '')
+    return templates.TemplateResponse(
+        "youtube_result.html",
+        {
+            "request": request,
+            "transcript_text": transcript_text
+        }
+    )
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8005)

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат распознавания</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="interface-wrapper">
+        <div class="container mt-5">
+            <div class="glass-card p-5">
+                <h1 class="text-center mb-4">Youtube — результат распознавания</h1>
+                <div class="form-group">
+                    <label for="youtube_transcript">Расшифрованный текст:</label>
+                    <textarea id="youtube_transcript" class="form-control" rows="20">{{ transcript_text }}</textarea>
+                </div>
+                <a href="/reset" class="btn btn-custom btn-lg btn-block">На главную</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
