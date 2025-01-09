@@ -2,6 +2,7 @@ import os
 from time import sleep
 from tiktoken import encoding_for_model
 from google.generativeai import configure, GenerativeModel
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import openai
 import ollama
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ temperature = 1.5
 
 # It's a bit of a mess, but the values are set to best suit the limitations of each platform.
 
-max_total_tokens_gemini = 14000 # for split function only; default is 14000
+max_total_tokens_gemini = 4000000 # for split function only; default is 14000
 max_output_tokens_gemini = 8192 # 8192 is max; default is 8192
 
 max_total_tokens_openai = 4096 # for split function only; default is 8192
@@ -51,7 +52,7 @@ openai_api_key = os.environ.get("open_ai_api_keys")
 hf_api_key = os.environ.get("hf_api_keys")
 groq_api_key = os.environ.get("groq_api_keys")
 
-def summarize_transcript(transcript, language, display_language, user_max_attempts):
+def summarize_transcript(transcript, language, display_language, user_max_attemps):
     configure(api_key=gemini_api_key)
 
     if language == 'ru':
@@ -86,35 +87,23 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
     total_tokens = tokens_in_transcript + prompt_tokens
     print(f"Общее количество токенов: {total_tokens}")
 
-    if total_tokens <= max_total_tokens_gemini:
-        model_name = "gemini-1.5-pro"
-        max_attempts = 1
-        parts = [transcript]
-        print("Используется модель gemini-1.5-pro с 1 попыткой генерации.")
-    else:
-        model_name = "gemini-1.5-flash"
-        max_attempts = user_max_attempts
-        max_transcript_tokens_per_part = max_total_tokens_gemini - prompt_tokens
-        parts = split_transcript_into_parts(transcript, max_transcript_tokens_per_part)
-        print(f"Транскрипт разделён на {len(parts)} частей.")
-        print(f"Используется модель gemini-1.5-flash с {max_attempts} попытками генерации.")
+
+    model_name = "gemini-2.0-flash-exp"
+    max_attempts = 1
+    parts = [transcript]
+    print(f"Используется модель {model_name}")
 
     all_summaries = []
-    request_counter = 0
 
     for part_number, part in enumerate(parts, start=1):
         prompt = base_prompt_template.format(part_text=part)
         num_tokens = len(encoding.encode(prompt))
         print(f"Общее количество токенов для части {part_number}: {num_tokens}")
 
-        max_tokens_in_summary = 0
         best_summary = ""
-        for attempt in range(max_attempts):
-            request_counter += 1
-            if request_counter % 2 == 0:
-                sleep(65)
 
-            print(f"Генерация для части {part_number}, попытка {attempt + 1}")
+        for attempt in range(max_attempts):
+
             model = GenerativeModel(model_name=model_name)
 
             chat = model.start_chat(
@@ -128,16 +117,18 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
                 prompt,
                 generation_config={
                     "max_output_tokens": max_output_tokens_gemini,
-                    "temperature": temperature
                 },
-                safety_settings={}
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                }
             ).text.strip()
 
             tokens_in_response = len(encoding.encode(response))
             print(f"Токенов в ответе для части {part_number}: {tokens_in_response}")
-            if tokens_in_response > max_tokens_in_summary:
-                max_tokens_in_summary = tokens_in_response
-                best_summary = response
+            best_summary = response
 
         all_summaries.append(f"# Часть {part_number}:\n\n{best_summary}\n\n")
 
