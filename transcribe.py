@@ -193,19 +193,19 @@ def download_youtube_audio(url, temp_dir):
                 'preferredquality': '192',
             }
         ],
+        'keepvideo': False,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            base_filename = ydl.prepare_filename(info_dict)
-            mp3_filename = base_filename.replace('.m4a', '.mp3')
-            mp3_filename = base_filename.replace('.webm', '.mp3')
-            
+            base_filename_with_ext = ydl.prepare_filename(info_dict)
+            mp3_filename = base_filename_with_ext.rsplit('.', 1)[0] + '.mp3'
+
             if not os.path.exists(mp3_filename):
                 print(f"Файл {mp3_filename} не найден после обработки")
                 return None
-            
+
             return mp3_filename
     except Exception as e:
         print(f"Ошибка при загрузке YouTube-видео: {e}")

@@ -52,7 +52,7 @@ openai_api_key = os.environ.get("open_ai_api_keys")
 hf_api_key = os.environ.get("hf_api_keys")
 groq_api_key = os.environ.get("groq_api_keys")
 
-def summarize_transcript(transcript, language, display_language, user_max_attemps):
+def summarize_transcript(transcript, language, display_language, user_max_attempts):
     configure(api_key=gemini_api_key)
 
     if language == 'ru':
@@ -86,7 +86,6 @@ def summarize_transcript(transcript, language, display_language, user_max_attemp
     prompt_tokens = len(encoding.encode(base_prompt_template.format(part_text="")))
     total_tokens = tokens_in_transcript + prompt_tokens
     print(f"Общее количество токенов: {total_tokens}")
-
 
     model_name = "gemini-2.0-flash-exp"
     max_attempts = 1
